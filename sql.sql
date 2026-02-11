@@ -87,3 +87,25 @@ INSERT INTO niveles (nombre) VALUES
 
 ALTER TABLE usuarios
 ADD tipo_intercambio ENUM('Puntual','Proyecto','Clases / mentoría');
+
+CREATE TABLE proyectos (
+    id_proyecto INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    titulo VARCHAR(100) NOT NULL,
+    descripcion TEXT NOT NULL,
+    tipo_proyecto ENUM('Personal','Académico','Profesional','Colaborativo'),
+    rol VARCHAR(50),
+    modalidad ENUM('Online','Presencial','Mixto'),
+    fecha_inicio DATE,
+    fecha_fin DATE,
+    enlace VARCHAR(255),
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
+);
+CREATE TABLE proyecto_habilidad (
+    id_proyecto INT,
+    id_habilidad INT,
+    PRIMARY KEY (id_proyecto, id_habilidad),
+    FOREIGN KEY (id_proyecto) REFERENCES proyectos(id_proyecto) ON DELETE CASCADE,
+    FOREIGN KEY (id_habilidad) REFERENCES habilidades(id_habilidad)
+);

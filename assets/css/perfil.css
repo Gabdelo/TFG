@@ -6,11 +6,256 @@
     box-sizing: border-box;
     font-family: 'Orbitron', sans-serif;
 }
+
 body{
     font-family: 'Rajdhani', sans-serif;
-    background-color: var(--primary-color);
+    background-color: rebeccapurple
 }
 
+h1, h2, h3, h4{
+    font-family: 'Orbitron', sans-serif;
+}
+.logo{
+    height: 70px;
+    background-color: rgb(255, 255, 255);
+    clip-path: circle(40%);
+    transition: ease 0.9s;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+.logo:hover{
+    transform: scale(1.1);
+}
+.navegador{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.nav-content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--primary-color);
+    width: 100%;
+    backdrop-filter: blur(10px);
+    position: fixed;
+    top: 0%;
+    z-index: 999;
+    padding-right: 2rem;
+    height: 5rem;
+}
+.btn-nav{
+    display: none;
+}
+.nav-list{
+    padding-top: 0.7rem;
+    display: flex;
+    list-style: none;
+    align-items: center;
+}
+.nav-list button{
+    border: none;
+    padding-left: 15px;
+    padding-right: 15px;
+    background: transparent;
+}
+.nav-list li a{
+    text-decoration: none;
+    color: rgb(0, 0, 0);
+    position: relative;
+    padding-bottom: 3px;
+    font-size: small;
+}
+.nav-list li button{
+    
+    color: rgb(0, 0, 0);
+    position: relative;
+    padding-bottom: 3px;
+    font-size: small;
+}
+/* ============================= */
+/* CONTENEDOR */
+/* ============================= */
 main{
-    background-color: aliceblue;
+    margin-top: 7rem;
+}
+
+.perfil-container{
+    max-width: 1100px;
+}
+
+/* ============================= */
+/* TARJETAS */
+/* ============================= */
+
+.perfil-card{
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    transition: 0.3s ease;
+}
+
+.perfil-card:hover{
+    transform: translateY(-5px);
+}
+
+/* ============================= */
+/* FOTO PERFIL */
+/* ============================= */
+
+.perfil-foto{
+    width: 120px;
+    height: 120px;
+    margin: auto;
+    background-image: url(../img/nexumFondo.jpg);
+    background-size: cover;
+    background-position: center;
+    border-radius: 50%;
+    border: 4px solid orange;
+}
+
+/* ============================= */
+/* TEXTOS */
+/* ============================= */
+
+.perfil-nombre{
+    font-weight: 700;
+}
+
+.perfil-ubicacion{
+    color: #666;
+}
+
+/* ============================= */
+/* HABILIDADES */
+/* ============================= */
+
+.barra-nivel{
+    height: 8px;
+    border-radius: 20px;
+    margin-top: 5px;
+    background-color: #ddd;
+}
+
+.barra-nivel.avanzado{
+    width: 100%;
+    background-color: orange;
+}
+
+.barra-nivel.intermedio{
+    width: 70%;
+    background-color: orange;
+}
+
+.barra-nivel.basico{
+    width: 40%;
+    background-color: orange;
+}
+
+.nivel{
+    font-weight: 600;
+}
+
+/* ============================= */
+/* ESTADO */
+/* ============================= */
+
+.estado-activo{
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: limegreen;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5); /* fondo opaco */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    max-height: 90%;
+    overflow-y: auto;  
+    font-size: 0.8rem;
+}
+
+.cerrar {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+.footer {
+    background: #0f172a;
+    color: #cbd5e1;
+}
+
+.footer-logo {
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.footer-title {
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #ffffff;
+}
+
+.footer-text {
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links li {
+    margin-bottom: 8px;
+}
+
+.footer-links a {
+    text-decoration: none;
+    color: #94a3b8;
+    transition: 0.3s;
+}
+
+.footer-links a:hover {
+    color: #ffffff;
+    padding-left: 5px;
+}
+
+.social-icons a {
+    display: inline-block;
+    margin-right: 10px;
+    font-size: 18px;
+    color: #94a3b8;
+    transition: 0.3s;
+}
+
+.social-icons a:hover {
+    color: #ffffff;
+    transform: translateY(-3px);
+}
+
+.footer-divider {
+    border-color: #1e293b;
+    margin: 30px 0;
 }
