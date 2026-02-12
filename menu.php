@@ -1,3 +1,37 @@
+<?php
+require 'includes/conexionDB.php'; // tu archivo de conexión a DB
+$conn = conectar();
+
+$busqueda = "";
+
+if (isset($_GET['busqueda']) && $_GET['busqueda'] != "") {
+    
+    $busqueda = $_GET['busqueda'];
+
+    $sql = "
+    SELECT DISTINCT u.*
+    FROM usuarios u
+    LEFT JOIN usuario_ofrece uo ON u.id_usuario = uo.id_usuario
+    LEFT JOIN habilidades h ON uo.id_habilidad = h.id_habilidad
+    LEFT JOIN proyectos p ON u.id_usuario = p.id_usuario
+    WHERE 
+        u.nombre LIKE '%$busqueda%' OR
+        u.ciudad LIKE '%$busqueda%' OR
+        h.nombre LIKE '%$busqueda%' OR
+        p.titulo LIKE '%$busqueda%'
+    ";
+
+} else {
+    $sql = "
+    SELECT u.id_usuario,u.nombre, p.titulo, p.descripcion
+    FROM proyectos p
+    JOIN usuarios u ON p.id_usuario = u.id_usuario
+    ORDER BY p.fecha_creacion DESC
+    ";
+}
+
+$resultado = $conn->query($sql);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,9 +87,41 @@
             <section class="col-lg-6">
 
                 <!-- 🔍 BUSCADOR -->
-                <div class="search-box p-3 mb-4">
-                    <input type="text" class="form-control" placeholder="Buscar perfiles o proyectos...">
-                </div>
+                                    <div class="search-box p-3 mb-4">
+                        <form method="GET" action="menu.php">
+                            <input 
+                                type="text" 
+                                name="busqueda" 
+                                class="form-control" 
+                                placeholder="Buscar perfiles, habilidades o proyectos..."
+                                value="<?php echo isset($_GET['busqueda']) ? htmlspecialchars($_GET['busqueda']) : ''; ?>"
+                            >
+                        </form>
+                    </div>
+
+
+              <?php while($fila = $resultado->fetch_assoc()) { ?>
+
+<a href="Verperfil.php?id=<?php echo $fila['id_usuario']; ?>" 
+   style="text-decoration:none; color:inherit;">
+
+    <div class="post-card p-4 mb-4" style="cursor:pointer;">
+        <div class="d-flex align-items-center mb-3">
+            <div class="mini-avatar"></div>
+            <div class="ms-3">
+                <strong><?php echo htmlspecialchars($fila['nombre']); ?></strong>
+            </div>
+        </div>
+
+        <?php if(isset($fila['titulo'])) { ?>
+            <h5><?php echo htmlspecialchars($fila['titulo']); ?></h5>
+            <p><?php echo htmlspecialchars($fila['descripcion']); ?></p>
+        <?php } ?>
+    </div>
+
+</a>
+
+<?php } ?>
 
                 <!-- 📢 PUBLICACIÓN -->
                 <div class="post-card p-4 mb-4">
