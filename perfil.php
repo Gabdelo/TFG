@@ -83,6 +83,7 @@ $resultado = $stmt->get_result();
                                 Ofrece y busca habilidades
                             </span>
                         </div>
+                        <button class="mt-4 btn btn-primary btn -sm">seguir</button>
                     </div>
 
                 </div>
