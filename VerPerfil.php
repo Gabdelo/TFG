@@ -1,29 +1,41 @@
 <?php
-require 'includes/conexionDB.php'; // tu archivo de conexión a DB
+require 'includes/conexionDB.php';
 $conn = conectar();
+session_start();
 
-  session_start(); // Siempre al inicio, antes de usar $_SESSION
+// Verificamos que venga un id
+if (!isset($_GET['id'])) {
+    header("Location: menu.php");
+    exit;
+}
 
-if (isset($_SESSION['id_usuario'])) { // el nombre correcto según login
-    $idUsuario = $_SESSION['id_usuario'];
-    $nombre    = $_SESSION['nombre'];
-} else {
-    // Usuario no logueado
-    $nombre = "Invitado";
-    // opcional: redirigir al login
-    // header("Location: login.php"); exit;
-} 
-$id_usuario = $_SESSION['id_usuario']; // asegúrate que tienes la sesión iniciada
+$id_usuario = intval($_GET['id']);
 
-$sql = "SELECT * FROM proyectos 
-        WHERE id_usuario = ? 
-        ORDER BY fecha_creacion DESC";
+// Obtener datos del usuario
+$sqlUsuario = "SELECT * FROM usuarios WHERE id_usuario = ?";
+$stmtUsuario = $conn->prepare($sqlUsuario);
+$stmtUsuario->bind_param("i", $id_usuario);
+$stmtUsuario->execute();
+$usuario = $stmtUsuario->get_result()->fetch_assoc();
 
-$stmt = $conn->prepare($sql);
+if (!$usuario) {
+    echo "Usuario no encontrado";
+    exit;
+}
+
+// Obtener proyectos del usuario
+$sqlProyectos = "SELECT * FROM proyectos 
+                 WHERE id_usuario = ? 
+                 ORDER BY fecha_creacion DESC";
+
+$stmt = $conn->prepare($sqlProyectos);
 $stmt->bind_param("i", $id_usuario);
 $stmt->execute();
 $resultado = $stmt->get_result();
-
+if (isset($_SESSION['id_usuario']) && $_SESSION['id_usuario'] == $id_usuario) {
+    header("Location: perfil.php");
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,16 +79,12 @@ $resultado = $stmt->get_result();
 
                         <div class="col-md-9">
                             <div class="d-flex justify-content-end gap-2 mb-2">
-        <button class="btn btn-outline-primary btn-sm">
-            <i class="bi bi-pencil-square"></i> Editar perfil
-        </button>
-
-        <button class="btn btn-primary btn-sm" id="btnSubirPublicacion" >
-            <i class="bi bi-plus-circle"></i> Subir publicación
-        </button>
+       
     </div>
-                            <h1 class="perfil-nombre"><?php echo "".$nombre."" ?></h1>
-                            <p class="perfil-ubicacion">
+                    <h1 class="perfil-nombre">
+    <?php echo htmlspecialchars($usuario['nombre']); ?>
+</h1>
+                     <p class="perfil-ubicacion">
                                 <i class="bi bi-geo-alt"></i> Madrid · Online
                             </p>
                             <span class="badge bg-warning text-dark">

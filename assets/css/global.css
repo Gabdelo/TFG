@@ -2,6 +2,14 @@
     --primary-color: rgb(255, 174, 0);
     --button-color: rgb(255, 149, 0);
     --primary-color-rgb: 236, 195, 27;
-    
+    --secondary-color: #000000;
+    --background-color: #f4f7f6;
+    --header-height: 80px;
+    --nav-color: #fff;
+    --link-hover-color: #c4e1ff;
+    --hamburger-color: #333;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --azul-oscuro: #171473;
+    --azul-oscuro-rgb: 23, 20, 115;
 
 }

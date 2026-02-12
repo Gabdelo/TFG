@@ -1,10 +1,10 @@
 <?php
 
 //echo "auth.php cargado"; 
-//exit;
 
+if (session_status() === PHP_SESSION_NONE) {
     session_start();
-
+}
 
 function loginUser($user) {
     $_SESSION['id_usuario']   = $user['id_usuario'];
