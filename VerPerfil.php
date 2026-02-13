@@ -74,7 +74,9 @@ if (isset($_SESSION['id_usuario']) && $_SESSION['id_usuario'] == $id_usuario) {
 
                     <div class="row align-items-center">
                         <div class="col-md-3 text-center">
-                            <div class="perfil-foto"></div>
+                            <div class="perfil-foto" style="background-image: url('<?php 
+    echo !empty($usuario['foto_perfil']) ? 'uploads/' . $usuario['foto_perfil'] : 'assets/img/default-avatar.png'; 
+?>');"></div>
                         </div>
 
                         <div class="col-md-9">

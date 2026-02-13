@@ -11,6 +11,7 @@ function loginUser($user) {
     $_SESSION['nombre']       = $user['nombre'];
     $_SESSION['email']        = $user['email'];
     $_SESSION['tipo_usuario'] = $user['tipo_usuario'];
+    $_SESSION['foto_perfil'] = $user['foto_perfil'];
 }
 
 function isLoggedIn() {

@@ -62,14 +62,17 @@ $resultado = $stmt->get_result();
 
                     <div class="row align-items-center">
                         <div class="col-md-3 text-center">
-                            <div class="perfil-foto"></div>
+                            <div class="perfil-foto" style="background-image: url('<?php 
+    echo !empty($_SESSION['foto_perfil']) ? 'uploads/' . $_SESSION['foto_perfil'] : 'assets/img/default-avatar.png'; 
+?>');"></div>
+
                         </div>
 
                         <div class="col-md-9">
                             <div class="d-flex justify-content-end gap-2 mb-2">
-        <button class="btn btn-outline-primary btn-sm">
+        <a href="editarPerfil.php"><button class="btn btn-outline-primary btn-sm">
             <i class="bi bi-pencil-square"></i> Editar perfil
-        </button>
+        </button></a>
 
         <button class="btn btn-primary btn-sm" id="btnSubirPublicacion" >
             <i class="bi bi-plus-circle"></i> Subir publicación
