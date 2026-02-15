@@ -17,63 +17,76 @@ main{
     background-color: #f1f5f9;
     min-height: 100vh;
 }
-.logo{
-    height: 70px;
-    background-color: rgb(255, 255, 255);
-    clip-path: circle(40%);
-    transition: ease 0.9s;
-    margin-top: 2px;
-    margin-bottom: 2px;
-}
-.logo:hover{
-    transform: scale(1.1);
-}
-.navegador{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.nav-content{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: var(--primary-color);
+/* NAVBAR GENERAL */
+.navbar-custom {
     width: 100%;
-    backdrop-filter: blur(10px);
     position: fixed;
-    top: 0%;
-    z-index: 999;
-    padding-right: 2rem;
-    height: 5rem;
+    top: 0;
+    z-index: 1000;
+    background: var(--primary-color); /* Azul corporativo */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
-.btn-nav{
-    display: none;
-}
-.nav-list{
-    padding-top: 0.7rem;
+
+/* CONTENEDOR */
+.nav-container {
+    max-width: 1200px;
+    margin: auto;
+    height: 75px;
     display: flex;
-    list-style: none;
     align-items: center;
+    justify-content: center; /* centrado */
+    gap: 80px;
 }
-.nav-list button{
-    border: none;
-    padding-left: 15px;
-    padding-right: 15px;
-    background: transparent;
+
+/* LOGO */
+.nav-logo img {
+    height: 45px;
+    border-radius: 50%;
+    background-color: #f1f5f9;
 }
-.nav-list li a{
+
+/* MENÚ */
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-menu li a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-decoration: none;
-    color: rgb(0, 0, 0);
-    position: relative;
-    padding-bottom: 3px;
-    font-size: small;
+    color: white;
+    font-size: 13px;
+    transition: 0.3s;
 }
-.nav-list li button{
-    
-    color: rgb(0, 0, 0);
-    position: relative;
-    padding-bottom: 3px;
-    font-size: small;
+
+.nav-menu li a i {
+    font-size: 22px;
+}
+
+.nav-menu li a:hover {
+    transform: translateY(-3px);
+    color: #60a5fa; /* azul claro hover */
+}
+
+/* PERFIL */
+.profile-pic {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid white;
+}
+
+.profile-pic img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 /* Tarjetas laterales */
@@ -108,6 +121,82 @@ main{
     height: 45px;
     background-color: orange;
     border-radius: 50%;
+
+    background-position: center;
+    background-size: cover;
+}
+/* ================= PERFIL LATERAL ================= */
+
+.profile-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    transition: 0.3s;
+}
+
+.profile-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(255,107,0,0.15);
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-avatar {
+    width: 95px;
+    height: 95px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #ff6b00;
+    padding: 3px;
+    background: white;
+}
+
+.status-dot {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 15px;
+    height: 15px;
+    background: #28c76f;
+    border: 3px solid white;
+    border-radius: 50%;
+}
+
+.profile-role {
+    font-size: 14px;
+    color: #777;
+}
+
+.profile-stats {
+    display: flex;
+    justify-content: space-around;
+    font-size: 13px;
+}
+
+.profile-stats strong {
+    display: block;
+    color: #ff6b00;
+    font-size: 16px;
+}
+
+.profile-stats span {
+    color: #777;
+}
+
+.btn-nexum {
+    background: linear-gradient(45deg, #ff6b00, #ff8c42);
+    color: white;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-nexum:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(255,107,0,0.3);
 }
 .footer {
     background: #0f172a;

@@ -119,6 +119,16 @@ CREATE TABLE usuario_seguidores (
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
     FOREIGN KEY (id_seguidor) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
 );
+CREATE TABLE mensajes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_emisor INT NOT NULL,         -- Usuario que envía
+    id_receptor INT NOT NULL,       -- Usuario que recibe
+    mensaje TEXT NOT NULL,
+    fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    leido TINYINT(1) DEFAULT 0,
+    FOREIGN KEY (id_emisor) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (id_receptor) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
+);
 ---------------------------------------------------------
 -- INSERTS ----------------------------------------------------------------------------------------
 ---------------------------------------------------------

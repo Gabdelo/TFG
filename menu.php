@@ -2,6 +2,20 @@
 require 'includes/conexionDB.php'; // tu archivo de conexión a DB
 $conn = conectar();
 
+ session_start(); // Siempre al inicio, antes de usar $_SESSION
+ if (isset($_SESSION['id_usuario'])) { // el nombre correcto según login
+    $idUsuario = $_SESSION['id_usuario'];
+    $nombre    = $_SESSION['nombre'];
+    $foto = !empty($_SESSION['foto_perfil']) 
+    ? 'uploads/' . $_SESSION['foto_perfil'] 
+    : 'assets/img/default-avatar.png';
+} else {
+    // Usuario no logueado
+    $nombre = "Invitado";
+    // opcional: redirigir al login
+    // header("Location: login.php"); exit;
+} 
+
 $busqueda = "";
 
 if (isset($_GET['busqueda']) && $_GET['busqueda'] != "") {
@@ -23,10 +37,10 @@ if (isset($_GET['busqueda']) && $_GET['busqueda'] != "") {
 
 } else {
     $sql = "
-    SELECT u.id_usuario,u.nombre, p.titulo, p.descripcion
-    FROM proyectos p
-    JOIN usuarios u ON p.id_usuario = u.id_usuario
-    ORDER BY p.fecha_creacion DESC
+    SELECT u.id_usuario, u.nombre, u.foto_perfil, p.titulo, p.descripcion
+FROM proyectos p
+JOIN usuarios u ON p.id_usuario = u.id_usuario
+ORDER BY p.fecha_creacion DESC
     ";
 }
 
@@ -45,25 +59,91 @@ $resultado = $conn->query($sql);
     <title>Document</title>
 </head>
 <body>
-    <nav class="container-fluid navegador bg-dark">
-        <div class="container-fluid nav-content">
-            <a href="index.html"><img class="logo" src="./assets/img/nexusIcon.png" alt=""></a>
-            <button class="btn-nav"><span class="bi bi-list"></span></button>
-            <ul class="nav-list">
-                <li><button><a href="index.php#PROGRAMA">PROGRAMA</a></button></li>
-                <li><button><a href="./mapa/mapa.php">STANDS</a></button></li>
-                <li><button><a href="./empresas/empresas.php">RANKING</a></button></li>
-                <li><button><a href="menu.html">MENU</a></button></li>
-                <li><button id="btn-login">INICIAR SESIÓN</button></li>
-            </ul>
-        </div>
-    </nav>
+    <nav class="navbar-custom">
+    <div class="nav-container">
+
+        <!-- LOGO -->
+        <a href="index.html" class="nav-logo">
+            <img src="./assets/img/nexusIcon.png" alt="Logo">
+        </a>
+
+        <!-- MENÚ CENTRADO -->
+        <ul class="nav-menu">
+
+            <li>
+                <a href="menu.php">
+                    <i class="bi bi-house-fill"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="empleos.php">
+                    <i class="bi bi-briefcase-fill"></i>
+                    <span>Empleos</span>
+                </a>
+            </li>
+            <li>
+                <a href="personas.php">
+                    <i class="bi bi-person-fill"></i>
+                    <span>Personas</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="mensajes.php">
+                    <i class="bi bi-chat-dots-fill"></i>
+                    <span>Chats</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="perfil.php" class="nav-profile">
+                    <div class="profile-pic">
+                        <img src="assets/img/default-avatar.png" alt="">
+                    </div>
+                    <span>Perfil</span>
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+</nav>
+
+    
     <main class="container-fluid mt-5 pt-5">
     <div class="container py-4">
         <div class="row">
 
             <!-- 🔹 COLUMNA IZQUIERDA -->
             <aside class="col-lg-3 d-none d-lg-block">
+                <div class="side-card profile-card p-4 mb-4 text-center">
+
+    <div class="profile-avatar-wrapper">
+        <img src="<?php echo $foto; ?>" class="profile-avatar" alt="Foto de perfil">
+        <span class="status-dot"></span>
+    </div>
+
+    <h5 class="mt-3 mb-1"><?php echo "".$nombre."" ?></h5>
+    <p class="profile-role">Desarrollador Full Stack</p>
+
+    <div class="profile-stats mt-3">
+        <div>
+            <strong>12</strong>
+            <span>Proyectos</span>
+        </div>
+        <div>
+            <strong>34</strong>
+            <span>Conexiones</span>
+        </div>
+    </div>
+
+    <a href="perfil.php" class="btn btn-sm btn-nexum mt-3 w-100">
+        Ver perfil
+    </a>
+
+</div>
                 <div class="side-card p-3 mb-4">
                     <h5>Filtrar por</h5>
                     <ul class="list-unstyled mt-3">
@@ -107,11 +187,22 @@ $resultado = $conn->query($sql);
 
     <div class="post-card p-4 mb-4" style="cursor:pointer;">
         <div class="d-flex align-items-center mb-3">
-            <div class="mini-avatar"></div>
-            <div class="ms-3">
-                <strong><?php echo htmlspecialchars($fila['nombre']); ?></strong>
-            </div>
-        </div>
+
+    <?php
+    $fotoPost = !empty($fila['foto_perfil']) 
+            ? "uploads/" . $fila['foto_perfil'] 
+            : "assets/img/default-avatar.png";
+    ?>
+
+    <div class="mini-avatar"
+         style="background-image: url('<?php echo htmlspecialchars($fotoPost); ?>');">
+    </div>
+
+    <div class="ms-3">
+        <strong><?php echo htmlspecialchars($fila['nombre']); ?></strong>
+    </div>
+
+</div>
 
         <?php if(isset($fila['titulo'])) { ?>
             <h5><?php echo htmlspecialchars($fila['titulo']); ?></h5>

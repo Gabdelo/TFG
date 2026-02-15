@@ -23,6 +23,28 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $id_usuario);
 $stmt->execute();
 $resultado = $stmt->get_result();
+// 🔹 Contar seguidores (los que siguen a este usuario)
+$sqlSeguidores = "SELECT COUNT(*) AS total 
+                  FROM usuario_seguidores 
+                  WHERE id_usuario = ?";
+
+$stmtSeguidores = $conn->prepare($sqlSeguidores);
+$stmtSeguidores->bind_param("i", $id_usuario);
+$stmtSeguidores->execute();
+$resSeguidores = $stmtSeguidores->get_result();
+$totalSeguidores = $resSeguidores->fetch_assoc()['total'];
+
+
+// 🔹 Contar seguidos (a quienes sigue este usuario)
+$sqlSeguidos = "SELECT COUNT(*) AS total 
+                FROM usuario_seguidores 
+                WHERE id_seguidor = ?";
+
+$stmtSeguidos = $conn->prepare($sqlSeguidos);
+$stmtSeguidos->bind_param("i", $id_usuario);
+$stmtSeguidos->execute();
+$resSeguidos = $stmtSeguidos->get_result();
+$totalSeguidos = $resSeguidos->fetch_assoc()['total'];
 
 ?>
 <!DOCTYPE html>
@@ -38,19 +60,50 @@ $resultado = $stmt->get_result();
     <title>Perfil</title>
 </head>
 <body>
-    <nav class="container-fluid navegador bg-dark">
-        <div class="container-fluid nav-content">
-            <a href="index.html"><img class="logo" src="./assets/img/nexusIcon.png" alt=""></a>
-            <button class="btn-nav"><span class="bi bi-list"></span></button>
-            <ul class="nav-list">
-                <li><button><a href="index.php#PROGRAMA">PROGRAMA</a></button></li>
-                <li><button><a href="./mapa/mapa.php">STANDS</a></button></li>
-                <li><button><a href="./empresas/empresas.php">RANKING</a></button></li>
-                <li><button><a href="index.php#Patrocinadores">MENU</a></button></li>
-                <li><button id="btn-login">INICIAR SESIÓN</button></li>
-            </ul>
+    <nav class="navbar-custom">
+    <div class="nav-container">
+
+        <!-- LOGO -->
+        <a href="index.php" class="nav-logo">
+            <img src="./assets/img/nexusIcon.png" alt="Logo">
+        </a>
+
+        <!-- BUSCADOR -->
+        <div class="nav-search">
+            <i class="bi bi-search"></i>
+            <input type="text" placeholder="Buscar empleos o personas...">
         </div>
-    </nav>
+
+        <!-- MENÚ -->
+        <ul class="nav-menu">
+
+            <li>
+                <a href="index.php">
+                    <i class="bi bi-briefcase-fill"></i>
+                    <span>Empleos</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="mensajes.php">
+                    <i class="bi bi-chat-dots-fill"></i>
+                    <span>Mensajes</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="perfil.php" class="nav-profile">
+                    <div class="profile-pic">
+                        <img src="assets/img/default-avatar.png" alt="">
+                    </div>
+                    <span>Perfil</span>
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+</nav>
     <main class="">
     <div class="container perfil-container">
 
@@ -62,9 +115,14 @@ $resultado = $stmt->get_result();
 
                     <div class="row align-items-center">
                         <div class="col-md-3 text-center">
-                            <div class="perfil-foto" style="background-image: url('<?php 
-    echo !empty($_SESSION['foto_perfil']) ? 'uploads/' . $_SESSION['foto_perfil'] : 'assets/img/default-avatar.png'; 
-?>');"></div>
+                            <?php
+$foto = !empty($_SESSION['foto_perfil']) 
+    ? 'uploads/' . $_SESSION['foto_perfil'] 
+    : 'assets/img/default-avatar.png';
+?>
+
+<div class="perfil-foto" style="background-image: url('<?php echo $foto; ?>');"></div>
+                
 
                         </div>
 
@@ -82,11 +140,16 @@ $resultado = $stmt->get_result();
                             <p class="perfil-ubicacion">
                                 <i class="bi bi-geo-alt"></i> Madrid · Online
                             </p>
+                            <p class="mt-2 mb-1">
+                                    <strong><?php echo $totalSeguidores; ?></strong> seguidores ·
+                                    <strong><?php echo $totalSeguidos; ?></strong> siguiendo
+                                </p>
+                            
                             <span class="badge bg-warning text-dark">
                                 Ofrece y busca habilidades
                             </span>
                         </div>
-                        <button class="mt-4 btn btn-primary btn -sm">seguir</button>
+                 
                     </div>
 
                 </div>
@@ -314,8 +377,6 @@ $resultado = $stmt->get_result();
         </div>
     </div>
 </footer>
-
-
 
 </body>
 <script>

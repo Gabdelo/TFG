@@ -61,5 +61,5 @@ loginUser($user);
    7. REDIRECCIÓN
 ========================= */
 $conn->close();
-header("Location: ../perfil.php");
+header("Location: ../menu.php");
 exit;

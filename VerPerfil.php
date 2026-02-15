@@ -11,6 +11,11 @@ if (!isset($_GET['id'])) {
 
 $id_usuario = intval($_GET['id']);
 
+if (isset($_SESSION['id_usuario']) && $_SESSION['id_usuario'] == $id_usuario) {
+    header("Location: perfil.php");
+    exit;
+}
+
 // Obtener datos del usuario
 $sqlUsuario = "SELECT * FROM usuarios WHERE id_usuario = ?";
 $stmtUsuario = $conn->prepare($sqlUsuario);
@@ -22,6 +27,16 @@ if (!$usuario) {
     echo "Usuario no encontrado";
     exit;
 }
+$stmtCount = $conn->prepare(
+    "SELECT 
+        (SELECT COUNT(*) FROM usuario_seguidores WHERE id_usuario = ?) AS seguidores,
+        (SELECT COUNT(*) FROM usuario_seguidores WHERE id_seguidor = ?) AS siguiendo"
+);
+
+$stmtCount->bind_param("ii", $id_usuario, $id_usuario);
+$stmtCount->execute();
+$datosFollow = $stmtCount->get_result()->fetch_assoc();
+$stmtCount->close();
 
 // Obtener proyectos del usuario
 $sqlProyectos = "SELECT * FROM proyectos 
@@ -32,9 +47,29 @@ $stmt = $conn->prepare($sqlProyectos);
 $stmt->bind_param("i", $id_usuario);
 $stmt->execute();
 $resultado = $stmt->get_result();
-if (isset($_SESSION['id_usuario']) && $_SESSION['id_usuario'] == $id_usuario) {
-    header("Location: perfil.php");
-    exit;
+
+
+$yaLoSigo = false;
+
+if (isset($_SESSION['id_usuario'])) {
+    $idLogueado = $_SESSION['id_usuario'];
+
+    $stmtFollow = $conn->prepare(
+        "SELECT 1 FROM usuario_seguidores 
+         WHERE id_usuario = ? AND id_seguidor = ?"
+    );
+    $stmtFollow->bind_param("ii", $id_usuario, $idLogueado);
+    $stmtFollow->execute();
+    $stmtFollow->store_result();
+
+    if ($stmtFollow->num_rows > 0) {
+        $yaLoSigo = true;
+    }
+
+    $stmtFollow->close();
+
+    // Obtener número de seguidores y seguidos
+
 }
 ?>
 <!DOCTYPE html>
@@ -50,19 +85,58 @@ if (isset($_SESSION['id_usuario']) && $_SESSION['id_usuario'] == $id_usuario) {
     <title>Perfil</title>
 </head>
 <body>
-    <nav class="container-fluid navegador bg-dark">
-        <div class="container-fluid nav-content">
-            <a href="index.html"><img class="logo" src="./assets/img/nexusIcon.png" alt=""></a>
-            <button class="btn-nav"><span class="bi bi-list"></span></button>
-            <ul class="nav-list">
-                <li><button><a href="index.php#PROGRAMA">PROGRAMA</a></button></li>
-                <li><button><a href="./mapa/mapa.php">STANDS</a></button></li>
-                <li><button><a href="./empresas/empresas.php">RANKING</a></button></li>
-                <li><button><a href="index.php#Patrocinadores">MENU</a></button></li>
-                <li><button id="btn-login">INICIAR SESIÓN</button></li>
-            </ul>
-        </div>
-    </nav>
+    <nav class="navbar-custom">
+    <div class="nav-container">
+
+        <!-- LOGO -->
+        <a href="index.php" class="nav-logo">
+            <img src="./assets/img/nexusIcon.png" alt="Logo">
+        </a>
+
+        <!-- MENÚ CENTRADO -->
+        <ul class="nav-menu">
+
+            <li>
+                <a href="index.php">
+                    <i class="bi bi-house-fill"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="empleos.php">
+                    <i class="bi bi-briefcase-fill"></i>
+                    <span>Empleos</span>
+                </a>
+            </li>
+            <li>
+                <a href="personas.php">
+                    <i class="bi bi-person-fill"></i>
+                    <span>Personas</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="mensajes.php">
+                    <i class="bi bi-chat-dots-fill"></i>
+                    <span>Chats</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="perfil.php" class="nav-profile">
+                    <div class="profile-pic">
+                        <img src="assets/img/default-avatar.png" alt="">
+                    </div>
+                    <span>Perfil</span>
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+</nav>
+    
     <main class="">
     <div class="container perfil-container">
 
@@ -74,9 +148,13 @@ if (isset($_SESSION['id_usuario']) && $_SESSION['id_usuario'] == $id_usuario) {
 
                     <div class="row align-items-center">
                         <div class="col-md-3 text-center">
-                            <div class="perfil-foto" style="background-image: url('<?php 
-    echo !empty($usuario['foto_perfil']) ? 'uploads/' . $usuario['foto_perfil'] : 'assets/img/default-avatar.png'; 
-?>');"></div>
+                           <?php
+$foto = !empty($usuario['foto_perfil']) 
+    ? 'uploads/' . $usuario['foto_perfil'] 
+    : 'assets/img/default-avatar.png';
+?>
+
+<div class="perfil-foto" style="background-image: url('<?php echo $foto; ?>');"></div>
                         </div>
 
                         <div class="col-md-9">
@@ -89,11 +167,29 @@ if (isset($_SESSION['id_usuario']) && $_SESSION['id_usuario'] == $id_usuario) {
                      <p class="perfil-ubicacion">
                                 <i class="bi bi-geo-alt"></i> Madrid · Online
                             </p>
+                            <p class="mt-2 mb-1">
+    <strong><?php echo $datosFollow['seguidores']; ?></strong> seguidores · 
+    <strong><?php echo $datosFollow['siguiendo']; ?></strong> siguiendo
+</p>
                             <span class="badge bg-warning text-dark">
                                 Ofrece y busca habilidades
                             </span>
                         </div>
-                        <button class="mt-4 btn btn-primary btn -sm">seguir</button>
+                        <?php if (isset($_SESSION['id_usuario'])): ?>
+    <form method="POST" action="php/seguir.php">
+        <input type="hidden" name="id_usuario" value="<?php echo $id_usuario; ?>">
+        
+        <?php if ($yaLoSigo): ?>
+            <button type="submit" name="accion" value="dejar" class="mt-4 btn btn-outline-danger btn-sm">
+                Dejar de seguir
+            </button>
+        <?php else: ?>
+            <button type="submit" name="accion" value="seguir" class="mt-4 btn btn-primary btn-sm">
+                Seguir
+            </button>
+        <?php endif; ?>
+    </form>
+<?php endif; ?>
                     </div>
 
                 </div>
