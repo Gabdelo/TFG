@@ -1,0 +1,239 @@
+:root {
+    --nexum-orange: #ff6b00;
+    --nexum-orange-light: #ff8c42;
+    --nexum-gray: #f4f6f8;
+    --nexum-dark-text: #1a1a1a;
+}
+
+/* ================= GLOBAL ================= */
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: white;
+    margin: 0;
+    color: var(--nexum-dark-text);
+}
+
+h1, h2, h4, h5 {
+    font-weight: 700;
+}
+
+a {
+    text-decoration: none;
+}
+
+/* ================= NAVBAR ================= */
+
+.navbar-nexum {
+    background: white;
+    padding: 18px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--nexum-dark-text);
+}
+
+.logo img {
+    width: 40px;
+}
+
+.btn-login {
+    margin-right: 15px;
+    color: var(--nexum-dark-text);
+}
+
+.btn-register {
+    background: linear-gradient(45deg, var(--nexum-orange), var(--nexum-orange-light));
+    padding: 8px 20px;
+    border-radius: 25px;
+    color: white;
+    font-weight: 600;
+}
+
+/* ================= HERO ================= */
+
+.hero-section {
+    padding: 120px 0;
+    background: linear-gradient(120deg, #fff 60%, #fff3eb 100%);
+}
+
+.hero-text h1 {
+    font-size: 48px;
+}
+
+.hero-text span {
+    color: var(--nexum-orange);
+}
+
+.hero-text p {
+    margin: 25px 0;
+    font-size: 18px;
+    color: #555;
+}
+
+.btn-primary-nexum {
+    background: linear-gradient(45deg, var(--nexum-orange), var(--nexum-orange-light));
+    padding: 12px 28px;
+    border-radius: 40px;
+    color: white;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-primary-nexum:hover {
+    transform: translateY(-3px);
+}
+
+.btn-secondary-nexum {
+    border: 2px solid var(--nexum-orange);
+    padding: 12px 28px;
+    border-radius: 40px;
+    color: var(--nexum-orange);
+    margin-left: 10px;
+}
+
+.btn-secondary-nexum:hover {
+    background: var(--nexum-orange);
+    color: white;
+}
+
+.hero-image img {
+    max-width: 100%;
+}
+
+/* ================= ABOUT ================= */
+
+.about-section {
+    padding: 120px 0;
+    background: white;
+}
+
+.subtitle {
+    color: #666;
+}
+
+.card-nexum {
+    padding: 30px;
+    border-radius: 20px;
+    background: white;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+    transition: 0.3s;
+}
+
+.card-nexum:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(255,107,0,0.15);
+}
+
+.icon-circle {
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+/* ================= STEPS ================= */
+
+.steps-section {
+    padding: 120px 0;
+    background: var(--nexum-gray);
+}
+
+.step-card span {
+    font-size: 40px;
+    font-weight: bold;
+    color: var(--nexum-orange);
+}
+
+/* ================= CTA ================= */
+
+.cta-section {
+    padding: 120px 0;
+    background: linear-gradient(45deg, var(--nexum-orange), var(--nexum-orange-light));
+    color: white;
+}
+
+.btn-white {
+    background: white;
+    color: var(--nexum-orange);
+    padding: 12px 28px;
+    border-radius: 40px;
+    font-weight: 600;
+}
+ /* Modal personalizado */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7); /* Fondo negro semitransparente */
+            display: none; /* Oculto por defecto */
+            justify-content: center;
+            align-items: center;
+            z-index: 1050;
+        }
+
+        .modal-content-custom {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5rem;
+          cursor: pointer;
+            color: #333;
+ }
+
+/* ================= FOOTER ================= */
+
+.footer-nexum {
+    background: #fff7f1;
+    padding-top: 60px;
+}
+
+.footer-logo {
+    color: var(--nexum-orange);
+    font-weight: 800;
+}
+
+.footer-nexum h6 {
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.footer-nexum ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-nexum ul li {
+    margin-bottom: 8px;
+}
+
+.footer-nexum ul li a {
+    color: #555;
+    transition: 0.3s;
+}
+
+.footer-nexum ul li a:hover {
+    color: var(--nexum-orange);
+}
+
+.footer-bottom {
+    border-top: 1px solid #ffd8c2;
+    padding: 20px 0;
+    margin-top: 40px;
+    font-size: 14px;
+    color: #777;
+}
