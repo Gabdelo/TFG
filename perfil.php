@@ -363,6 +363,85 @@ $_SESSION['tipo_usuario'] === 'ambos')
             </form>
         </div>
     </div>
+    <div class="modal-overlay d-none" id="modalOferta">
+    <div class="modal-content-custom position-relative">
+        <span class="modal-close" id="cerrarModalOferta">&times;</span>
+        <h3 class="text-center mb-4">Publicar oferta de trabajo</h3>
+
+        <form action="php/guardar_oferta.php" method="POST">
+
+            <div class="mb-3">
+                <input type="text" name="titulo" class="form-control" 
+                       placeholder="Título del puesto" required>
+            </div>
+
+            <div class="mb-3">
+                <textarea name="descripcion" class="form-control" rows="3"
+                    placeholder="Descripción del puesto" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <select name="tipo_contrato" class="form-control" required>
+                    <option value="">Tipo de contrato</option>
+                    <option value="Tiempo completo">Tiempo completo</option>
+                    <option value="Medio tiempo">Medio tiempo</option>
+                    <option value="Freelance">Freelance</option>
+                    <option value="Prácticas">Prácticas</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <select name="modalidad" class="form-control" required>
+                    <option value="">Modalidad</option>
+                    <option value="Presencial">Presencial</option>
+                    <option value="Remoto">Remoto</option>
+                    <option value="Híbrido">Híbrido</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <input type="text" name="ubicacion" class="form-control"
+                       placeholder="Ubicación">
+            </div>
+
+            <div class="mb-3">
+                <input type="text" name="salario" class="form-control"
+                       placeholder="Salario (opcional)">
+            </div>
+
+            <div class="mb-3">
+                <select name="experiencia" class="form-control">
+                    <option value="">Nivel de experiencia</option>
+                    <option value="Sin experiencia">Sin experiencia</option>
+                    <option value="Junior">Junior</option>
+                    <option value="Intermedio">Intermedio</option>
+                    <option value="Senior">Senior</option>
+                </select>
+            </div>
+
+            <!-- HABILIDADES -->
+            <div class="mb-3">
+                <label class="form-label">Habilidades requeridas</label>
+                <select name="habilidades[]" class="form-control" multiple required>
+                    <?php
+                    $habilidades = $conn->query("SELECT * FROM habilidades");
+                    while($h = $habilidades->fetch_assoc()){
+                        echo "<option value='".$h['id_habilidad']."'>".$h['nombre']."</option>";
+                    }
+                    ?>
+                </select>
+                <small class="text-muted">Mantén Ctrl para seleccionar varias</small>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" name="crear_oferta" class="btn btn-warning">
+                    Publicar oferta
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
 
     <footer class="footer mt-5 pt-5 pb-4">
         <div class="container">
@@ -467,6 +546,23 @@ $_SESSION['tipo_usuario'] === 'ambos')
             modalOverlay1.classList.add('d-none');
         }
     });
+    const btnOferta = document.getElementById('btnPublicarOferta');
+const modalOferta = document.getElementById('modalOferta');
+const cerrarOferta = document.getElementById('cerrarModalOferta');
+
+btnOferta.addEventListener('click', () => {
+    modalOferta.classList.remove('d-none');
+});
+
+cerrarOferta.addEventListener('click', () => {
+    modalOferta.classList.add('d-none');
+});
+
+modalOferta.addEventListener('click', (e) => {
+    if (e.target === modalOferta) {
+        modalOferta.classList.add('d-none');
+    }
+});
 </script>
 
 </html>

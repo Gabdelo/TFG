@@ -153,6 +153,55 @@ CREATE TABLE likes_publicaciones (
     FOREIGN KEY (id_publicacion) REFERENCES publicaciones(id_publicacion) ON DELETE CASCADE,
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
 );
+CREATE TABLE ofertas_trabajo (
+    id_oferta INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+
+    titulo VARCHAR(150) NOT NULL,
+    descripcion TEXT NOT NULL,
+
+    tipo_contrato ENUM('Tiempo completo','Medio tiempo','Freelance','Prácticas') NOT NULL,
+    modalidad ENUM('Presencial','Remoto','Híbrido') NOT NULL,
+
+    ubicacion VARCHAR(100),
+    salario VARCHAR(50),
+
+    experiencia ENUM('Sin experiencia','Junior','Intermedio','Senior'),
+    
+    fecha_publicacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_cierre DATE NULL,
+
+    estado ENUM('Activa','Cerrada') DEFAULT 'Activa',
+
+    FOREIGN KEY (id_usuario) 
+        REFERENCES usuarios(id_usuario) 
+        ON DELETE CASCADE
+);
+CREATE TABLE oferta_habilidad (
+    id_oferta INT NOT NULL,
+    id_habilidad INT NOT NULL,
+
+    PRIMARY KEY (id_oferta, id_habilidad),
+
+    FOREIGN KEY (id_oferta) 
+        REFERENCES ofertas_trabajo(id_oferta) 
+        ON DELETE CASCADE,
+
+    FOREIGN KEY (id_habilidad) 
+        REFERENCES habilidades(id_habilidad)
+);
+CREATE TABLE inscripciones_oferta (
+    id_oferta INT NOT NULL,
+    id_usuario INT NOT NULL,
+    fecha_inscripcion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_oferta, id_usuario),
+    FOREIGN KEY (id_oferta) REFERENCES ofertas_trabajo(id_oferta) ON DELETE CASCADE,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
+);
+ALTER TABLE ofertas_trabajo
+MODIFY estado ENUM('Activa','Cerrada','Eliminada') DEFAULT 'Activa';
+ALTER TABLE inscripciones_oferta
+ADD COLUMN estado ENUM('Inscrito','Seleccionado','Rechazado') DEFAULT 'Inscrito';
 
 
 ---------------------------------------------------------
@@ -266,3 +315,113 @@ INSERT INTO mensajes (id_emisor, id_receptor, mensaje) VALUES
 INSERT INTO mensajes (id_emisor, id_receptor, mensaje) VALUES
 (21, 1, '¡Hola! Sí, lo vi y está genial 😃'),
 (21, 1, 'Hablemos más tarde para coordinar.');
+
+INSERT INTO ofertas_trabajo 
+(id_usuario, titulo, descripcion, tipo_contrato, modalidad, ubicacion, salario, experiencia)
+VALUES
+
+(1, 'Desarrollador Full Stack para Startup SaaS',
+'Buscamos un desarrollador Full Stack con experiencia en PHP, MySQL y JavaScript para unirse a nuestro equipo en crecimiento. Trabajarás en el desarrollo y mantenimiento de una plataforma SaaS orientada a la gestión empresarial. Se valorará experiencia en APIs REST, control de versiones con Git y metodologías ágiles. Ofrecemos un entorno dinámico, posibilidad de crecimiento profesional y participación en decisiones técnicas.',
+'Tiempo completo','Remoto','Madrid','30.000€ - 38.000€','Intermedio'),
+
+(2, 'Diseñador UX/UI para aplicación móvil',
+'Necesitamos un diseñador creativo con experiencia en Figma y diseño centrado en el usuario para colaborar en una app educativa. El candidato ideal deberá tener portfolio actualizado y conocimientos en prototipado.',
+'Freelance','Remoto','Barcelona','Por proyecto','Junior'),
+
+(3, 'Técnico en reparación de dispositivos electrónicos',
+'Empresa especializada en reparación de smartphones y ordenadores busca técnico con experiencia en diagnóstico y sustitución de componentes.',
+'Tiempo completo','Presencial','Valencia','18.000€','Intermedio'),
+
+(4, 'Especialista en Marketing Digital',
+'Buscamos un profesional con experiencia en campañas SEM, gestión de redes sociales y análisis de métricas. Se encargará de diseñar estrategias de captación de clientes para proyectos tecnológicos.',
+'Tiempo completo','Híbrido','Sevilla','25.000€','Junior'),
+
+(5, 'Pintor industrial',
+'Se requiere pintor con experiencia en estructuras metálicas y uso de pistola airless.',
+'Medio tiempo','Presencial','Bilbao','Según convenio','Intermedio'),
+
+(1, 'Backend Developer Node.js',
+'Startup fintech busca backend developer con experiencia en Node.js y bases de datos relacionales. Se valorará experiencia en microservicios y seguridad informática.',
+'Tiempo completo','Remoto','Madrid','35.000€','Senior'),
+
+(2, 'Diseñador gráfico para branding',
+'Necesitamos diseñador gráfico para creación de identidad visual, logotipos y material publicitario.',
+'Freelance','Remoto','—','Por proyecto','Sin experiencia'),
+
+(3, 'Mecánico automotriz',
+'Taller oficial busca mecánico con experiencia en mantenimiento preventivo y correctivo de vehículos.',
+'Tiempo completo','Presencial','Zaragoza','22.000€','Intermedio'),
+
+(4, 'Growth Marketing Specialist',
+'Responsable de diseñar e implementar estrategias de crecimiento digital basadas en datos. Experiencia en automatización y CRM.',
+'Tiempo completo','Híbrido','Madrid','28.000€','Intermedio'),
+
+(5, 'Reparador de electrodomésticos',
+'Se busca técnico autónomo para reparación de lavadoras, frigoríficos y hornos.',
+'Freelance','Presencial','Granada','Por servicio','Junior'),
+
+(1, 'Frontend React Developer',
+'Buscamos desarrollador con experiencia sólida en React, consumo de APIs y diseño responsive.',
+'Tiempo completo','Remoto','Barcelona','32.000€','Intermedio'),
+
+(2, 'Ilustrador digital',
+'Proyecto creativo busca ilustrador para desarrollo de personajes y material visual.',
+'Freelance','Remoto','—','Por proyecto','Junior'),
+
+(3, 'Técnico mantenimiento industrial',
+'Empresa del sector industrial requiere técnico con conocimientos en maquinaria pesada.',
+'Tiempo completo','Presencial','Murcia','24.000€','Intermedio'),
+
+(4, 'Community Manager',
+'Gestión de redes sociales, creación de contenido y análisis de engagement.',
+'Medio tiempo','Remoto','Madrid','15.000€','Sin experiencia'),
+
+(5, 'Especialista en pintura decorativa',
+'Buscamos profesional creativo con experiencia en acabados decorativos.',
+'Freelance','Presencial','Málaga','Por proyecto','Intermedio'),
+
+(1, 'Ingeniero de Software',
+'Desarrollo y mantenimiento de sistemas empresariales escalables. Experiencia en arquitectura limpia y pruebas automatizadas.',
+'Tiempo completo','Híbrido','Madrid','40.000€','Senior'),
+
+(2, 'Diseñador Web',
+'Creación de páginas web modernas y optimizadas para SEO.',
+'Freelance','Remoto','—','Por proyecto','Junior'),
+
+(3, 'Técnico electromecánico',
+'Mantenimiento de sistemas eléctricos y mecánicos industriales.',
+'Tiempo completo','Presencial','Valladolid','23.000€','Intermedio'),
+
+(4, 'Especialista SEO',
+'Optimización de posicionamiento orgánico y análisis de keywords.',
+'Freelance','Remoto','—','Por proyecto','Intermedio'),
+
+(5, 'Técnico de mantenimiento general',
+'Reparaciones básicas, fontanería y electricidad.',
+'Medio tiempo','Presencial','Alicante','Según convenio','Sin experiencia');
+INSERT INTO oferta_habilidad (id_oferta, id_habilidad) VALUES
+
+(1,1),(1,6),
+(2,2),
+(3,5),
+(4,6),
+(5,4),
+
+(6,1),
+(7,2),
+(8,3),
+(9,6),
+(10,5),
+
+(11,1),
+(12,2),
+(13,3),
+(14,6),
+(15,4),
+
+(16,1),
+(17,2),
+(18,3),
+(19,6),
+(20,5);
+
