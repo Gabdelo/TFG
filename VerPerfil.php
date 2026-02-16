@@ -2,6 +2,9 @@
 require 'includes/conexionDB.php';
 $conn = conectar();
 session_start();
+$foto1 = !empty($_SESSION['foto_perfil']) 
+    ? 'uploads/' . $_SESSION['foto_perfil'] 
+    : 'assets/img/default-avatar.png';
 
 // Verificamos que venga un id
 if (!isset($_GET['id'])) {
@@ -126,7 +129,7 @@ if (isset($_SESSION['id_usuario'])) {
             <li>
                 <a href="perfil.php" class="nav-profile">
                     <div class="profile-pic">
-                        <img src="assets/img/default-avatar.png" alt="">
+                        <img src="<?php echo $foto1; ?>" alt="">
                     </div>
                     <span>Perfil</span>
                 </a>
@@ -190,6 +193,11 @@ $foto = !empty($usuario['foto_perfil'])
         <?php endif; ?>
     </form>
 <?php endif; ?>
+<a href="mensajes.php?id=<?php echo $usuario['id_usuario']; ?>" 
+   class="btn btn-primary mt-3">
+   Enviar mensaje
+</a>
+
                     </div>
 
                 </div>

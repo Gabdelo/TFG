@@ -20,53 +20,37 @@ h1, h2, h3, h4{
     width: 100%;
     position: fixed;
     top: 0;
-    z-index: 1000;
-    background: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    z-index: 1;
+    background: var(--primary-color); /* Azul corporativo */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
+/* CONTENEDOR */
 .nav-container {
     max-width: 1200px;
     margin: auto;
-    height: 70px;
+    height: 75px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
+    justify-content: center; /* centrado */
+    gap: 80px;
 }
 
 /* LOGO */
 .nav-logo img {
     height: 45px;
     border-radius: 50%;
-}
-
-/* BUSCADOR */
-.nav-search {
-    background: #f3f3f3;
-    padding: 6px 12px;
-    border-radius: 30px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 300px;
-}
-
-.nav-search input {
-    border: none;
-    background: transparent;
-    outline: none;
-    width: 100%;
-    font-size: 14px;
+    background-color: #f1f5f9;
 }
 
 /* MENÚ */
 .nav-menu {
     display: flex;
     align-items: center;
-    gap: 25px;
+    gap: 40px;
     list-style: none;
     margin: 0;
+    padding: 0;
 }
 
 .nav-menu li a {
@@ -74,24 +58,18 @@ h1, h2, h3, h4{
     flex-direction: column;
     align-items: center;
     text-decoration: none;
-    color: #555;
+    color: white;
     font-size: 13px;
     transition: 0.3s;
 }
 
 .nav-menu li a i {
-    font-size: 20px;
+    font-size: 22px;
 }
 
 .nav-menu li a:hover {
-    color: #0d6efd;
-}
-
-/* PERFIL */
-.nav-profile {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    transform: translateY(-3px);
+    color: #60a5fa; /* azul claro hover */
 }
 
 .profile-pic {
@@ -228,7 +206,17 @@ main{
     overflow-y: auto;  
     font-size: 0.8rem;
 }
-
+.modal-content,
+.modal-content-custom {
+    background-color: #ffffff; /* fondo blanco sólido */
+    border-radius: 15px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+}
 .cerrar {
     position: absolute;
     top: 10px;
