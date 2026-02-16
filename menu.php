@@ -16,32 +16,82 @@ $conn = conectar();
     // header("Location: login.php"); exit;
 } 
 
-$busqueda = "";
+$busqueda = $_GET['busqueda'] ?? '';
+$sql = '';
 
-if (isset($_GET['busqueda']) && $_GET['busqueda'] != "") {
-    
-    $busqueda = $_GET['busqueda'];
+if (!empty($busqueda)) {
+
+    $busqueda = $conn->real_escape_string($busqueda);
 
     $sql = "
-    SELECT DISTINCT u.*
+    SELECT u.id_usuario, u.nombre, u.foto_perfil,
+           p.titulo,
+           p.descripcion,
+           p.fecha_creacion AS fecha,
+           'proyecto' AS tipo,
+           NULL AS imagen
     FROM usuarios u
+    LEFT JOIN proyectos p ON u.id_usuario = p.id_usuario
     LEFT JOIN usuario_ofrece uo ON u.id_usuario = uo.id_usuario
     LEFT JOIN habilidades h ON uo.id_habilidad = h.id_habilidad
-    LEFT JOIN proyectos p ON u.id_usuario = p.id_usuario
     WHERE 
         u.nombre LIKE '%$busqueda%' OR
         u.ciudad LIKE '%$busqueda%' OR
         h.nombre LIKE '%$busqueda%' OR
         p.titulo LIKE '%$busqueda%'
+
+    UNION ALL
+
+    SELECT u.id_usuario, u.nombre, u.foto_perfil,
+           NULL AS titulo,
+           pub.descripcion,
+           pub.fecha_creacion AS fecha,
+           'publicacion' AS tipo,
+           pub.imagen
+    FROM usuarios u
+    LEFT JOIN publicaciones pub ON u.id_usuario = pub.id_usuario
+    WHERE 
+        u.nombre LIKE '%$busqueda%' OR
+        pub.descripcion LIKE '%$busqueda%'
+
+    ORDER BY fecha DESC
     ";
 
 } else {
+
     $sql = "
-    SELECT u.id_usuario, u.nombre, u.foto_perfil, p.titulo, p.descripcion
-FROM proyectos p
-JOIN usuarios u ON p.id_usuario = u.id_usuario
-ORDER BY p.fecha_creacion DESC
+    SELECT u.id_usuario, u.nombre, u.foto_perfil,
+           p.titulo,
+           p.descripcion,
+           p.fecha_creacion AS fecha,
+           'proyecto' AS tipo,
+           NULL AS imagen
+    FROM proyectos p
+    JOIN usuarios u ON p.id_usuario = u.id_usuario
+
+    UNION ALL
+
+    SELECT u.id_usuario, u.nombre, u.foto_perfil,
+           NULL AS titulo,
+           pub.descripcion,
+           pub.fecha_creacion AS fecha,
+           'publicacion' AS tipo,
+           pub.imagen
+    FROM publicaciones pub
+    JOIN usuarios u ON pub.id_usuario = u.id_usuario
+
+    ORDER BY fecha DESC
     ";
+}
+
+if (empty($sql)) {
+    die("Error en la consulta SQL.");
+}
+
+$resultado = $conn->query($sql);
+
+if (!$resultado) {
+    die("Error en la consulta: " . $conn->error);
 }
 
 $resultado = $conn->query($sql);
@@ -100,7 +150,7 @@ $resultado = $conn->query($sql);
             <li>
                 <a href="perfil.php" class="nav-profile">
                     <div class="profile-pic">
-                        <img src="assets/img/default-avatar.png" alt="">
+                        <img src="<?php echo $foto; ?>" alt="">
                     </div>
                     <span>Perfil</span>
                 </a>
@@ -179,40 +229,56 @@ $resultado = $conn->query($sql);
                         </form>
                     </div>
 
+                 <?php while($fila = $resultado->fetch_assoc()) { 
 
-              <?php while($fila = $resultado->fetch_assoc()) { ?>
+    $fotoPost = !empty($fila['foto_perfil']) 
+        ? "uploads/" . $fila['foto_perfil'] 
+        : "assets/img/default-avatar.png";
+?>
 
-<a href="Verperfil.php?id=<?php echo $fila['id_usuario']; ?>" 
+<a href="VerPerfil.php?id=<?php echo $fila['id_usuario']; ?>" 
    style="text-decoration:none; color:inherit;">
 
     <div class="post-card p-4 mb-4" style="cursor:pointer;">
         <div class="d-flex align-items-center mb-3">
 
-    <?php
-    $fotoPost = !empty($fila['foto_perfil']) 
-            ? "uploads/" . $fila['foto_perfil'] 
-            : "assets/img/default-avatar.png";
-    ?>
+            <div class="mini-avatar"
+                 style="background-image: url('<?php echo htmlspecialchars($fotoPost); ?>');">
+            </div>
 
-    <div class="mini-avatar"
-         style="background-image: url('<?php echo htmlspecialchars($fotoPost); ?>');">
-    </div>
+            <div class="ms-3">
+                <strong><?php echo htmlspecialchars($fila['nombre']); ?></strong>
+                <br>
+                <small><?php echo $fila['tipo'] === 'proyecto' ? 'Proyecto' : 'Publicación'; ?></small>
+            </div>
 
-    <div class="ms-3">
-        <strong><?php echo htmlspecialchars($fila['nombre']); ?></strong>
-    </div>
+        </div>
 
-</div>
-
-        <?php if(isset($fila['titulo'])) { ?>
+        <?php if($fila['tipo'] === 'proyecto') { ?>
             <h5><?php echo htmlspecialchars($fila['titulo']); ?></h5>
-            <p><?php echo htmlspecialchars($fila['descripcion']); ?></p>
         <?php } ?>
+
+        
+
+        <?php if($fila['tipo'] === 'publicacion' && !empty($fila['imagen'])): ?>
+            <div class="mt-2">
+                <img src="uploads/<?php echo htmlspecialchars($fila['imagen']); ?>" 
+                     style="max-width:100%; border-radius:10px;" 
+                     alt="Imagen de publicación">
+            </div>
+            <p class="mt-2" ><?php echo htmlspecialchars($fila['descripcion']); ?></p>
+        <?php endif; ?>
+
     </div>
 
 </a>
 
 <?php } ?>
+
+
+
+
+              
 
                 <!-- 📢 PUBLICACIÓN -->
                 <div class="post-card p-4 mb-4">

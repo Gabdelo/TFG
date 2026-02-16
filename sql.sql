@@ -129,6 +129,32 @@ CREATE TABLE mensajes (
     FOREIGN KEY (id_emisor) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
     FOREIGN KEY (id_receptor) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
 );
+CREATE TABLE publicaciones (
+    id_publicacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    descripcion TEXT,
+    imagen VARCHAR(255),
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
+);
+CREATE TABLE comentarios (
+    id_comentario INT AUTO_INCREMENT PRIMARY KEY,
+    id_publicacion INT NOT NULL,
+    id_usuario INT NOT NULL,
+    comentario TEXT NOT NULL,
+    fecha_comentario TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_publicacion) REFERENCES publicaciones(id_publicacion) ON DELETE CASCADE,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
+);
+CREATE TABLE likes_publicaciones (
+    id_publicacion INT NOT NULL,
+    id_usuario INT NOT NULL,
+    PRIMARY KEY (id_publicacion, id_usuario),
+    FOREIGN KEY (id_publicacion) REFERENCES publicaciones(id_publicacion) ON DELETE CASCADE,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
+);
+
+
 ---------------------------------------------------------
 -- INSERTS ----------------------------------------------------------------------------------------
 ---------------------------------------------------------
@@ -231,3 +257,12 @@ INSERT INTO usuario_seguidores (id_usuario, id_seguidor) VALUES
 (3, 1),  -- Usuario 1 sigue a Usuario 3
 (3, 2);  -- Usuario 2 sigue a Usuario 3
 
+-- Mensajes enviados por el usuario 1 al 21
+INSERT INTO mensajes (id_emisor, id_receptor, mensaje) VALUES
+(1, 21, 'Hola, ¿cómo estás?'),
+(1, 21, '¿Has visto el proyecto que subí?');
+
+-- Mensajes enviados por el usuario 21 al 1
+INSERT INTO mensajes (id_emisor, id_receptor, mensaje) VALUES
+(21, 1, '¡Hola! Sí, lo vi y está genial 😃'),
+(21, 1, 'Hablemos más tarde para coordinar.');
