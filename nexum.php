@@ -18,84 +18,7 @@ if (isset($_SESSION['id_usuario'])) { // el nombre correcto según login
     // header("Location: login.php"); exit;
 }
 
-$busqueda = $_GET['busqueda'] ?? '';
-$sql = '';
 
-if (!empty($busqueda)) {
-
-    $busqueda = $conn->real_escape_string($busqueda);
-
-    $sql = "
-    SELECT u.id_usuario, u.nombre, u.foto_perfil,
-           p.titulo,
-           p.descripcion,
-           p.fecha_creacion AS fecha,
-           'proyecto' AS tipo,
-           NULL AS imagen
-    FROM usuarios u
-    LEFT JOIN proyectos p ON u.id_usuario = p.id_usuario
-    LEFT JOIN usuario_ofrece uo ON u.id_usuario = uo.id_usuario
-    LEFT JOIN habilidades h ON uo.id_habilidad = h.id_habilidad
-    WHERE 
-        u.nombre LIKE '%$busqueda%' OR
-        u.ciudad LIKE '%$busqueda%' OR
-        h.nombre LIKE '%$busqueda%' OR
-        p.titulo LIKE '%$busqueda%'
-
-    UNION ALL
-
-    SELECT u.id_usuario, u.nombre, u.foto_perfil,
-           NULL AS titulo,
-           pub.descripcion,
-           pub.fecha_creacion AS fecha,
-           'publicacion' AS tipo,
-           pub.imagen
-    FROM usuarios u
-    LEFT JOIN publicaciones pub ON u.id_usuario = pub.id_usuario
-    WHERE 
-        u.nombre LIKE '%$busqueda%' OR
-        pub.descripcion LIKE '%$busqueda%'
-
-    ORDER BY fecha DESC
-    ";
-} else {
-
-    $sql = "
-    SELECT u.id_usuario, u.nombre, u.foto_perfil,
-           p.titulo,
-           p.descripcion,
-           p.fecha_creacion AS fecha,
-           'proyecto' AS tipo,
-           NULL AS imagen
-    FROM proyectos p
-    JOIN usuarios u ON p.id_usuario = u.id_usuario
-
-    UNION ALL
-
-    SELECT u.id_usuario, u.nombre, u.foto_perfil,
-           NULL AS titulo,
-           pub.descripcion,
-           pub.fecha_creacion AS fecha,
-           'publicacion' AS tipo,
-           pub.imagen
-    FROM publicaciones pub
-    JOIN usuarios u ON pub.id_usuario = u.id_usuario
-
-    ORDER BY fecha DESC
-    ";
-}
-
-if (empty($sql)) {
-    die("Error en la consulta SQL.");
-}
-
-$resultado = $conn->query($sql);
-
-if (!$resultado) {
-    die("Error en la consulta: " . $conn->error);
-}
-
-$resultado = $conn->query($sql);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -219,96 +142,137 @@ $resultado = $conn->query($sql);
                 <!-- 🔹 COLUMNA CENTRAL -->
                 <section class="col-lg-6">
 
-                    <!-- 🔍 BUSCADOR -->
-                    <div class="search-box p-3 mb-4">
-                        <form method="GET" action="menu.php">
-                            <input
-                                type="text"
-                                name="busqueda"
-                                class="form-control"
-                                placeholder="Buscar perfiles, habilidades o proyectos..."
-                                value="<?php echo isset($_GET['busqueda']) ? htmlspecialchars($_GET['busqueda']) : ''; ?>">
-                        </form>
-                    </div>
+                    <?php
+                    $idUsuario = $_SESSION['id_usuario'] ?? 0;
+                    $tipoUsuario = $_SESSION['tipo_usuario'] ?? '';
 
-                    <?php while ($fila = $resultado->fetch_assoc()) {
+                    // Conectar a DB si aún no lo has hecho
+                    $conn = conectar();
 
-                        $fotoPost = !empty($fila['foto_perfil'])
-                            ? "uploads/" . $fila['foto_perfil']
-                            : "assets/img/default-avatar.png";
+                    // =====================
+                    // 1️⃣ Sección: Mis ofertas (ofertas creadas por mí)
+                    // =====================
+                    if ($tipoUsuario === 'buscar' || $tipoUsuario === 'ambos') {
+                        echo '<h4 class="mb-3">Mis ofertas publicadas</h4>';
+
+                        $sqlOfertasPropias = "SELECT o.*, 
+                                 (SELECT COUNT(*) FROM inscripciones_oferta i WHERE i.id_oferta = o.id_oferta) AS num_inscritos
+                          FROM ofertas_trabajo o
+                          WHERE o.id_usuario = ?
+                          ORDER BY o.fecha_publicacion DESC";
+                        $stmt = $conn->prepare($sqlOfertasPropias);
+                        $stmt->bind_param("i", $idUsuario);
+                        $stmt->execute();
+                        $resultado = $stmt->get_result();
+
+                        if ($resultado->num_rows > 0) {
+                            while ($fila = $resultado->fetch_assoc()) {
                     ?>
-
-                        <a href="VerPerfil.php?id=<?php echo $fila['id_usuario']; ?>"
-                            style="text-decoration:none; color:inherit;">
-
-                            <div class="post-card p-4 mb-4" style="cursor:pointer;">
-                                <div class="d-flex align-items-center mb-3">
-
-                                    <div class="mini-avatar"
-                                        style="background-image: url('<?php echo htmlspecialchars($fotoPost); ?>');">
+                                <div class="post-card p-4 mb-4">
+                                    <h5><?php echo htmlspecialchars($fila['titulo']); ?></h5>
+                                    <p><?php echo htmlspecialchars($fila['descripcion']); ?></p>
+                                    <div class="mt-2">
+                                        <span class="badge bg-warning text-dark"><?php echo htmlspecialchars($fila['tipo_contrato']); ?></span>
+                                        <span class="badge bg-secondary"><?php echo htmlspecialchars($fila['modalidad']); ?></span>
+                                        <?php if (!empty($fila['ubicacion'])): ?>
+                                            <span class="badge bg-info text-dark"><?php echo htmlspecialchars($fila['ubicacion']); ?></span>
+                                        <?php endif; ?>
+                                        <?php if (!empty($fila['experiencia'])): ?>
+                                            <span class="badge bg-dark"><?php echo htmlspecialchars($fila['experiencia']); ?></span>
+                                        <?php endif; ?>
+                                        <span class="badge bg-primary">Inscritos: <?php echo $fila['num_inscritos']; ?></span>
                                     </div>
 
-                                    <div class="ms-3">
-                                        <strong><?php echo htmlspecialchars($fila['nombre']); ?></strong>
-                                        <br>
-                                        <small><?php echo $fila['tipo'] === 'proyecto' ? 'Proyecto' : 'Publicación'; ?></small>
+                                    <!-- Botón para ver inscritos -->
+                                    <?php if ($fila['num_inscritos'] > 0): ?>
+                                        <form method="get" action="Ver_inscritos.php" class="mt-2">
+                                            <input type="hidden" name="id_oferta" value="<?php echo $fila['id_oferta']; ?>">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">Ver inscritos</button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
+                            <?php
+                            }
+                        } else {
+                            echo "<p>No tienes ofertas publicadas.</p>";
+                        }
+                    }
+
+                    // =====================
+                    // 2️⃣ Sección: Mis inscripciones (ofertas a las que me he inscrito)
+                    // =====================
+                    if ($tipoUsuario === 'ofrecer' || $tipoUsuario === 'ambos') {
+                        echo '<h4 class="mb-3">Ofertas a las que estoy inscrito</h4>';
+
+                        $sqlInscritas = "SELECT o.*, u.nombre, u.foto_perfil
+                 FROM inscripciones_oferta i
+                 JOIN ofertas_trabajo o ON i.id_oferta = o.id_oferta
+                 JOIN usuarios u ON o.id_usuario = u.id_usuario
+                 WHERE i.id_usuario = ?
+                 ORDER BY o.fecha_publicacion DESC";
+                        $stmt2 = $conn->prepare($sqlInscritas);
+                        $stmt2->bind_param("i", $idUsuario);
+                        $stmt2->execute();
+                        $resultadoInscritas = $stmt2->get_result();
+
+                        if ($resultadoInscritas->num_rows > 0) {
+                            while ($fila = $resultadoInscritas->fetch_assoc()) {
+
+                                $fotoOfertante = !empty($fila['foto_perfil'])
+                                    ? "uploads/" . $fila['foto_perfil']
+                                    : "assets/img/default-avatar.png";
+                            ?>
+                                <div class="post-card p-4 mb-4">
+
+                                    <!-- Cabecera clickeable (foto + nombre) -->
+                                    <a href="VerPerfil.php?id=<?php echo $fila['id_usuario']; ?>"
+                                        class="d-flex align-items-center mb-3 text-decoration-none text-dark">
+
+                                        <div style="width:50px; height:50px; border-radius:50%; overflow:hidden;">
+                                            <img src="<?php echo htmlspecialchars($fotoOfertante); ?>"
+                                                style="width:100%; height:100%; object-fit:cover;">
+                                        </div>
+
+                                        <div class="ms-3">
+                                            <strong><?php echo htmlspecialchars($fila['nombre']); ?></strong><br>
+                                            <small class="text-muted">
+                                                <?php echo date("d M Y", strtotime($fila['fecha_publicacion'])); ?>
+                                            </small>
+                                        </div>
+                                    </a>
+
+                                    <!-- Info oferta -->
+                                    <h5><?php echo htmlspecialchars($fila['titulo']); ?></h5>
+                                    <p><?php echo htmlspecialchars($fila['descripcion']); ?></p>
+
+                                    <div class="mt-2">
+                                        <span class="badge bg-warning text-dark">
+                                            <?php echo htmlspecialchars($fila['tipo_contrato']); ?>
+                                        </span>
+                                        <span class="badge bg-secondary">
+                                            <?php echo htmlspecialchars($fila['modalidad']); ?>
+                                        </span>
+                                    </div>
+
+                                    <!-- Botón Inscrito (cancelar inscripción) -->
+                                    <div class="mt-3">
+                                        <form method="post" action="php/inscribirse_oferta.php">
+                                            <input type="hidden" name="id_oferta" value="<?php echo $fila['id_oferta']; ?>">
+                                            <button type="submit" name="accion" class="btn btn-secondary btn-sm">
+                                                Inscrito
+                                            </button>
+                                        </form>
                                     </div>
 
                                 </div>
-
-                                <?php if ($fila['tipo'] === 'proyecto') { ?>
-                                    <h5><?php echo htmlspecialchars($fila['titulo']); ?></h5>
-                                <?php } ?>
-
-
-
-                                <?php if ($fila['tipo'] === 'publicacion' && !empty($fila['imagen'])): ?>
-                                    <div class="mt-2">
-                                        <img src="uploads/<?php echo htmlspecialchars($fila['imagen']); ?>"
-                                            style="max-width:100%; border-radius:10px;"
-                                            alt="Imagen de publicación">
-                                    </div>
-                                    <p class="mt-2"><?php echo htmlspecialchars($fila['descripcion']); ?></p>
-                                <?php endif; ?>
-
-                            </div>
-
-                        </a>
-
-                    <?php } ?>
-
-
-
-
-
-
-                    <!-- 📢 PUBLICACIÓN -->
-                    <div class="post-card p-4 mb-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="mini-avatar"></div>
-                            <div class="ms-3">
-                                <strong>Ana López</strong>
-                                <p class="small text-muted m-0">Desarrolladora Frontend</p>
-                            </div>
-                        </div>
-                        <p>Busco diseñador UX/UI para colaborar en una app educativa 🚀</p>
-                        <button class="btn btn-sm btn-outline-dark">Ver proyecto</button>
-                    </div>
-
-                    <div class="post-card p-4 mb-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="mini-avatar"></div>
-                            <div class="ms-3">
-                                <strong>Carlos Ruiz</strong>
-                                <p class="small text-muted m-0">Editor de video</p>
-                            </div>
-                        </div>
-                        <p>Ofrezco edición profesional para proyectos tecnológicos.</p>
-                        <button class="btn btn-sm btn-outline-dark">Contactar</button>
-                    </div>
-
+                    <?php
+                            }
+                        } else {
+                            echo "<p>No te has inscrito a ninguna oferta.</p>";
+                        }
+                    }
+                    ?>
                 </section>
-
 
                 <!-- 🔹 COLUMNA DERECHA -->
                 <aside class="col-lg-3 d-none d-lg-block">
@@ -331,6 +295,7 @@ $resultado = $conn->query($sql);
                         <p>Completa tu perfil al 100% para tener más visibilidad.</p>
                     </div>
 
+                    <!-- 🔹 OFERTAS DE EMPLEO / INSCRIPCIONES -->
 
 
                 </aside>

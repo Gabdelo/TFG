@@ -1,7 +1,5 @@
 <?php
-require 'includes/conexionDB.php';
-
-// tu archivo de conexión a DB
+require 'includes/conexionDB.php'; // tu archivo de conexión a DB
 $conn = conectar();
 
 session_start(); // Siempre al inicio, antes de usar $_SESSION
@@ -26,67 +24,23 @@ if (!empty($busqueda)) {
     $busqueda = $conn->real_escape_string($busqueda);
 
     $sql = "
-    SELECT u.id_usuario, u.nombre, u.foto_perfil,
-           p.titulo,
-           p.descripcion,
-           p.fecha_creacion AS fecha,
-           'proyecto' AS tipo,
-           NULL AS imagen
-    FROM usuarios u
-    LEFT JOIN proyectos p ON u.id_usuario = p.id_usuario
-    LEFT JOIN usuario_ofrece uo ON u.id_usuario = uo.id_usuario
-    LEFT JOIN habilidades h ON uo.id_habilidad = h.id_habilidad
+    SELECT ot.*, u.nombre, u.foto_perfil
+    FROM ofertas_trabajo ot
+    JOIN usuarios u ON ot.id_usuario = u.id_usuario
     WHERE 
-        u.nombre LIKE '%$busqueda%' OR
-        u.ciudad LIKE '%$busqueda%' OR
-        h.nombre LIKE '%$busqueda%' OR
-        p.titulo LIKE '%$busqueda%'
-
-    UNION ALL
-
-    SELECT u.id_usuario, u.nombre, u.foto_perfil,
-           NULL AS titulo,
-           pub.descripcion,
-           pub.fecha_creacion AS fecha,
-           'publicacion' AS tipo,
-           pub.imagen
-    FROM usuarios u
-    LEFT JOIN publicaciones pub ON u.id_usuario = pub.id_usuario
-    WHERE 
-        u.nombre LIKE '%$busqueda%' OR
-        pub.descripcion LIKE '%$busqueda%'
-
-    ORDER BY fecha DESC
+        ot.titulo LIKE '%$busqueda%' OR
+        ot.descripcion LIKE '%$busqueda%' OR
+        ot.ubicacion LIKE '%$busqueda%'
+    ORDER BY ot.fecha_publicacion DESC
     ";
 } else {
 
     $sql = "
-    SELECT u.id_usuario, u.nombre, u.foto_perfil,
-           p.titulo,
-           p.descripcion,
-           p.fecha_creacion AS fecha,
-           'proyecto' AS tipo,
-           NULL AS imagen
-    FROM proyectos p
-    JOIN usuarios u ON p.id_usuario = u.id_usuario
-
-    UNION ALL
-
-    SELECT u.id_usuario, u.nombre, u.foto_perfil,
-           NULL AS titulo,
-           pub.descripcion,
-           pub.fecha_creacion AS fecha,
-           'publicacion' AS tipo,
-           pub.imagen
-    FROM publicaciones pub
-    JOIN usuarios u ON pub.id_usuario = u.id_usuario
-
-    ORDER BY fecha DESC
+    SELECT ot.*, u.nombre, u.foto_perfil
+    FROM ofertas_trabajo ot
+    JOIN usuarios u ON ot.id_usuario = u.id_usuario
+    ORDER BY ot.fecha_publicacion DESC
     ";
-}
-
-if (empty($sql)) {
-    die("Error en la consulta SQL.");
 }
 
 $resultado = $conn->query($sql);
@@ -94,8 +48,6 @@ $resultado = $conn->query($sql);
 if (!$resultado) {
     die("Error en la consulta: " . $conn->error);
 }
-
-$resultado = $conn->query($sql);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -108,7 +60,7 @@ $resultado = $conn->query($sql);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"><!--bootstrap 5 icons-->
     <link type="text/css" rel="stylesheet" href="assets/css/menu.css">
     <link type="text/css" rel="stylesheet" href="assets/css/global.css">
-    <title>Document</title>
+    <title>OFERTAS</title>
 </head>
 
 <body>
@@ -221,12 +173,12 @@ $resultado = $conn->query($sql);
 
                     <!-- 🔍 BUSCADOR -->
                     <div class="search-box p-3 mb-4">
-                        <form method="GET" action="menu.php">
+                        <form method="GET" action="VerOfertas.php">
                             <input
                                 type="text"
                                 name="busqueda"
                                 class="form-control"
-                                placeholder="Buscar perfiles, habilidades o proyectos..."
+                                placeholder="Buscar ofertas..."
                                 value="<?php echo isset($_GET['busqueda']) ? htmlspecialchars($_GET['busqueda']) : ''; ?>">
                         </form>
                     </div>
@@ -236,52 +188,66 @@ $resultado = $conn->query($sql);
                         $fotoPost = !empty($fila['foto_perfil'])
                             ? "uploads/" . $fila['foto_perfil']
                             : "assets/img/default-avatar.png";
+
+                        $idUsuarioActual = $_SESSION['id_usuario'] ?? 0;
+
+                        // Comprobar si el usuario ya está inscrito
+                        $sqlCheck = "SELECT * FROM inscripciones_oferta WHERE id_oferta = ? AND id_usuario = ?";
+                        $stmtCheck = $conn->prepare($sqlCheck);
+                        $stmtCheck->bind_param("ii", $fila['id_oferta'], $idUsuarioActual);
+                        $stmtCheck->execute();
+                        $resCheck = $stmtCheck->get_result();
+                        $yaInscrito = $resCheck->num_rows > 0;
                     ?>
 
-                        <a href="VerPerfil.php?id=<?php echo $fila['id_usuario']; ?>"
-                            style="text-decoration:none; color:inherit;">
+                        <div class="post-card p-4 mb-4">
 
-                            <div class="post-card p-4 mb-4" style="cursor:pointer;">
+                            <!-- Cabecera clickeable -->
+                            <a href="VerPerfil.php?id=<?php echo $fila['id_usuario']; ?>" style="text-decoration:none; color:inherit;">
                                 <div class="d-flex align-items-center mb-3">
-
-                                    <div class="mini-avatar"
-                                        style="background-image: url('<?php echo htmlspecialchars($fotoPost); ?>');">
-                                    </div>
-
+                                    <div class="mini-avatar" style="background-image: url('<?php echo htmlspecialchars($fotoPost); ?>');"></div>
                                     <div class="ms-3">
                                         <strong><?php echo htmlspecialchars($fila['nombre']); ?></strong>
                                         <br>
-                                        <small><?php echo $fila['tipo'] === 'proyecto' ? 'Proyecto' : 'Publicación'; ?></small>
+                                        <small class="text-muted"><?php echo date("d M Y", strtotime($fila['fecha_publicacion'])); ?></small>
                                     </div>
-
                                 </div>
+                            </a>
 
-                                <?php if ($fila['tipo'] === 'proyecto') { ?>
-                                    <h5><?php echo htmlspecialchars($fila['titulo']); ?></h5>
-                                <?php } ?>
+                            <h5><?php echo htmlspecialchars($fila['titulo']); ?></h5>
+                            <p><?php echo htmlspecialchars($fila['descripcion']); ?></p>
 
-
-
-                                <?php if ($fila['tipo'] === 'publicacion' && !empty($fila['imagen'])): ?>
-                                    <div class="mt-2">
-                                        <img src="uploads/<?php echo htmlspecialchars($fila['imagen']); ?>"
-                                            style="max-width:100%; border-radius:10px;"
-                                            alt="Imagen de publicación">
-                                    </div>
-                                    <p class="mt-2"><?php echo htmlspecialchars($fila['descripcion']); ?></p>
+                            <div class="mt-2">
+                                <span class="badge bg-warning text-dark"><?php echo htmlspecialchars($fila['tipo_contrato']); ?></span>
+                                <span class="badge bg-secondary"><?php echo htmlspecialchars($fila['modalidad']); ?></span>
+                                <?php if (!empty($fila['ubicacion'])): ?>
+                                    <span class="badge bg-info text-dark"><?php echo htmlspecialchars($fila['ubicacion']); ?></span>
                                 <?php endif; ?>
-
+                                <?php if (!empty($fila['experiencia'])): ?>
+                                    <span class="badge bg-dark"><?php echo htmlspecialchars($fila['experiencia']); ?></span>
+                                <?php endif; ?>
                             </div>
 
-                        </a>
+                            <!-- Botón Inscribirse / Cancelar: solo si no es mi propia oferta -->
+                            <?php
+                            $tipoUsuarioActual = $_SESSION['tipo_usuario'] ?? '';
+
+                            if ($fila['id_usuario'] != $idUsuarioActual && $tipoUsuarioActual != 'buscar'):
+                            ?>
+                                <div class="mt-3">
+                                    <form method="post" action="php/inscribirse_oferta.php">
+                                        <input type="hidden" name="id_oferta" value="<?php echo $fila['id_oferta']; ?>">
+                                        <button type="submit" name="accion"
+                                            class="btn <?php echo $yaInscrito ? 'btn-secondary' : 'btn-success'; ?> btn-sm">
+                                            <?php echo $yaInscrito ? 'Inscrito' : 'Inscribirse'; ?>
+                                        </button>
+                                    </form>
+                                </div>
+                            <?php endif; ?>
+
+                        </div>
 
                     <?php } ?>
-
-
-
-
-
-
                     <!-- 📢 PUBLICACIÓN -->
                     <div class="post-card p-4 mb-4">
                         <div class="d-flex align-items-center mb-3">
@@ -312,8 +278,6 @@ $resultado = $conn->query($sql);
 
                 <!-- 🔹 COLUMNA DERECHA -->
                 <aside class="col-lg-3 d-none d-lg-block">
-
-                    <!-- Tarjeta usuarios destacados / consejos -->
                     <div class="side-card p-3 mb-4">
                         <h5>Usuarios destacados</h5>
                         <div class="d-flex align-items-center mb-3">
@@ -326,13 +290,10 @@ $resultado = $conn->query($sql);
                         </div>
                     </div>
 
-                    <div class="side-card p-3 mb-4">
+                    <div class="side-card p-3">
                         <h5>Consejo del día</h5>
                         <p>Completa tu perfil al 100% para tener más visibilidad.</p>
                     </div>
-
-
-
                 </aside>
 
             </div>
