@@ -7,10 +7,11 @@ $conn = conectar();
 session_start(); // Siempre al inicio, antes de usar $_SESSION
 if (isset($_SESSION['id_usuario'])) { // el nombre correcto según login
     $idUsuario = $_SESSION['id_usuario'];
-    $nombre    = $_SESSION['nombre'];
+    $nombre = $_SESSION['nombre'];
     $foto = !empty($_SESSION['foto_perfil'])
         ? 'uploads/' . $_SESSION['foto_perfil']
         : 'assets/img/default-avatar.png';
+        $ubicacion = $_SESSION['ciudad'];
 } else {
     // Usuario no logueado
     $nombre = "Invitado";
@@ -19,72 +20,47 @@ if (isset($_SESSION['id_usuario'])) { // el nombre correcto según login
 }
 
 $busqueda = $_GET['busqueda'] ?? '';
-$sql = '';
+$sql = "
+SELECT u.id_usuario, u.nombre, u.foto_perfil,
+       p.titulo,
+       p.descripcion,
+       p.fecha_creacion AS fecha,
+       'proyecto' AS tipo,
+       NULL AS imagen,
+       p.rol,
+       p.tipo_proyecto,
+       p.modalidad,
+       p.enlace
+FROM usuarios u
+LEFT JOIN proyectos p ON u.id_usuario = p.id_usuario
+LEFT JOIN usuario_ofrece uo ON u.id_usuario = uo.id_usuario
+LEFT JOIN habilidades h ON uo.id_habilidad = h.id_habilidad
+WHERE 
+    u.nombre LIKE '%$busqueda%' OR
+    u.ciudad LIKE '%$busqueda%' OR
+    h.nombre LIKE '%$busqueda%' OR
+    p.titulo LIKE '%$busqueda%'
 
-if (!empty($busqueda)) {
+UNION ALL
 
-    $busqueda = $conn->real_escape_string($busqueda);
+SELECT u.id_usuario, u.nombre, u.foto_perfil,
+       NULL AS titulo,
+       pub.descripcion,
+       pub.fecha_creacion AS fecha,
+       'publicacion' AS tipo,
+       pub.imagen,
+       NULL AS rol,
+       NULL AS tipo_proyecto,
+       NULL AS modalidad,
+       NULL AS enlace
+FROM usuarios u
+LEFT JOIN publicaciones pub ON u.id_usuario = pub.id_usuario
+WHERE 
+    u.nombre LIKE '%$busqueda%' OR
+    pub.descripcion LIKE '%$busqueda%'
 
-    $sql = "
-    SELECT u.id_usuario, u.nombre, u.foto_perfil,
-           p.titulo,
-           p.descripcion,
-           p.fecha_creacion AS fecha,
-           'proyecto' AS tipo,
-           NULL AS imagen
-    FROM usuarios u
-    LEFT JOIN proyectos p ON u.id_usuario = p.id_usuario
-    LEFT JOIN usuario_ofrece uo ON u.id_usuario = uo.id_usuario
-    LEFT JOIN habilidades h ON uo.id_habilidad = h.id_habilidad
-    WHERE 
-        u.nombre LIKE '%$busqueda%' OR
-        u.ciudad LIKE '%$busqueda%' OR
-        h.nombre LIKE '%$busqueda%' OR
-        p.titulo LIKE '%$busqueda%'
-
-    UNION ALL
-
-    SELECT u.id_usuario, u.nombre, u.foto_perfil,
-           NULL AS titulo,
-           pub.descripcion,
-           pub.fecha_creacion AS fecha,
-           'publicacion' AS tipo,
-           pub.imagen
-    FROM usuarios u
-    LEFT JOIN publicaciones pub ON u.id_usuario = pub.id_usuario
-    WHERE 
-        u.nombre LIKE '%$busqueda%' OR
-        pub.descripcion LIKE '%$busqueda%'
-
-    ORDER BY fecha DESC
-    ";
-} else {
-
-    $sql = "
-    SELECT u.id_usuario, u.nombre, u.foto_perfil,
-           p.titulo,
-           p.descripcion,
-           p.fecha_creacion AS fecha,
-           'proyecto' AS tipo,
-           NULL AS imagen
-    FROM proyectos p
-    JOIN usuarios u ON p.id_usuario = u.id_usuario
-
-    UNION ALL
-
-    SELECT u.id_usuario, u.nombre, u.foto_perfil,
-           NULL AS titulo,
-           pub.descripcion,
-           pub.fecha_creacion AS fecha,
-           'publicacion' AS tipo,
-           pub.imagen
-    FROM publicaciones pub
-    JOIN usuarios u ON pub.id_usuario = u.id_usuario
-
-    ORDER BY fecha DESC
-    ";
-}
-
+ORDER BY fecha DESC
+";
 if (empty($sql)) {
     die("Error en la consulta SQL.");
 }
@@ -95,7 +71,40 @@ if (!$resultado) {
     die("Error en la consulta: " . $conn->error);
 }
 
-$resultado = $conn->query($sql);
+$sqlSeguidores = "SELECT COUNT(*) AS total 
+                  FROM usuario_seguidores 
+                  WHERE id_usuario = ?";
+
+$stmtSeguidores = $conn->prepare($sqlSeguidores);
+$stmtSeguidores->bind_param("i", $idUsuario);
+$stmtSeguidores->execute();
+$resSeguidores = $stmtSeguidores->get_result();
+$totalSeguidores = $resSeguidores->fetch_assoc()['total'];
+
+
+$sqlSeguidos = "SELECT COUNT(*) AS total 
+                FROM usuario_seguidores 
+                WHERE id_seguidor = ?";
+
+$stmtSeguidos = $conn->prepare($sqlSeguidos);
+$stmtSeguidos->bind_param("i", $idUsuario);
+$stmtSeguidos->execute();
+$resSeguidos = $stmtSeguidos->get_result();
+$totalSeguidos = $resSeguidos->fetch_assoc()['total'];
+$sqlTopUsuarios = "
+    SELECT u.id_usuario,
+           u.nombre,
+           u.foto_perfil,
+           COUNT(us.id_seguidor) AS total_seguidores
+    FROM usuarios u
+    LEFT JOIN usuario_seguidores us 
+        ON u.id_usuario = us.id_usuario
+    GROUP BY u.id_usuario
+    ORDER BY total_seguidores DESC
+    LIMIT 4
+";
+
+$resultTopUsuarios = $conn->query($sqlTopUsuarios);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -104,8 +113,10 @@ $resultado = $conn->query($sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="assets/img/nexusIcon.png" type="image/png">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"> <!--bootstrap 5 CSS-->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"><!--bootstrap 5 icons-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!--bootstrap 5 CSS-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!--bootstrap 5 icons-->
     <link type="text/css" rel="stylesheet" href="assets/css/menu.css">
     <link type="text/css" rel="stylesheet" href="assets/css/global.css">
     <title>Document</title>
@@ -116,7 +127,7 @@ $resultado = $conn->query($sql);
         <div class="nav-container">
 
             <!-- LOGO -->
-            <a href="index.html" class="nav-logo">
+            <a href="menu.php" class="nav-logo">
                 <img src="./assets/img/nexusIcon.png" alt="Logo">
             </a>
 
@@ -179,16 +190,16 @@ $resultado = $conn->query($sql);
                         </div>
 
                         <h5 class="mt-3 mb-1"><?php echo "" . $nombre . "" ?></h5>
-                        <p class="profile-role">Desarrollador Full Stack</p>
+                        <p class="profile-role"><?php echo "" . $ubicacion . "" ?></p>
 
                         <div class="profile-stats mt-3">
                             <div>
-                                <strong>12</strong>
-                                <span>Proyectos</span>
+                                <strong><?php echo $totalSeguidores; ?></strong></strong>
+                                <span>Seguidores</span>
                             </div>
                             <div>
-                                <strong>34</strong>
-                                <span>Conexiones</span>
+                                <strong><?php echo $totalSeguidos; ?></strong></strong>
+                                <span>Seguidos</span>
                             </div>
                         </div>
 
@@ -197,16 +208,7 @@ $resultado = $conn->query($sql);
                         </a>
 
                     </div>
-                    <div class="side-card p-3 mb-4">
-                        <h5>Filtrar por</h5>
-                        <ul class="list-unstyled mt-3">
-                            <li><a href="#">Programación</a></li>
-                            <li><a href="#">Diseño</a></li>
-                            <li><a href="#">Marketing</a></li>
-                            <li><a href="#">Edición de video</a></li>
-                        </ul>
-                    </div>
-
+                 
                     <div class="side-card p-3">
                         <h5>Tendencias</h5>
                         <p>#DesarrolloWeb</p>
@@ -222,10 +224,7 @@ $resultado = $conn->query($sql);
                     <!-- 🔍 BUSCADOR -->
                     <div class="search-box p-3 mb-4">
                         <form method="GET" action="menu.php">
-                            <input
-                                type="text"
-                                name="busqueda"
-                                class="form-control"
+                            <input type="text" name="busqueda" class="form-control"
                                 placeholder="Buscar perfiles, habilidades o proyectos..."
                                 value="<?php echo isset($_GET['busqueda']) ? htmlspecialchars($_GET['busqueda']) : ''; ?>">
                         </form>
@@ -236,7 +235,7 @@ $resultado = $conn->query($sql);
                         $fotoPost = !empty($fila['foto_perfil'])
                             ? "uploads/" . $fila['foto_perfil']
                             : "assets/img/default-avatar.png";
-                    ?>
+                        ?>
 
                         <a href="VerPerfil.php?id=<?php echo $fila['id_usuario']; ?>"
                             style="text-decoration:none; color:inherit;">
@@ -257,7 +256,33 @@ $resultado = $conn->query($sql);
                                 </div>
 
                                 <?php if ($fila['tipo'] === 'proyecto') { ?>
+
                                     <h5><?php echo htmlspecialchars($fila['titulo']); ?></h5>
+
+                                    <p class="mb-1">
+                                        <?php echo htmlspecialchars($fila['descripcion']); ?>
+                                    </p>
+
+                                    <small class="text-muted d-block">
+                                        <strong>Rol:</strong> <?php echo htmlspecialchars($fila['rol']); ?>
+                                    </small>
+
+                                    <small class="text-muted d-block">
+                                        <strong>Tipo:</strong> <?php echo htmlspecialchars($fila['tipo_proyecto']); ?>
+                                    </small>
+
+                                    <small class="text-muted d-block">
+                                        <strong>Modalidad:</strong> <?php echo htmlspecialchars($fila['modalidad']); ?>
+                                    </small>
+
+                                    <?php if (!empty($fila['enlace'])): ?>
+                                        <small class="d-block mt-1">
+                                            <a href="<?php echo htmlspecialchars($fila['enlace']); ?>" target="_blank">
+                                                Ver proyecto
+                                            </a>
+                                        </small>
+                                    <?php endif; ?>
+
                                 <?php } ?>
 
 
@@ -265,8 +290,7 @@ $resultado = $conn->query($sql);
                                 <?php if ($fila['tipo'] === 'publicacion' && !empty($fila['imagen'])): ?>
                                     <div class="mt-2">
                                         <img src="uploads/<?php echo htmlspecialchars($fila['imagen']); ?>"
-                                            style="max-width:100%; border-radius:10px;"
-                                            alt="Imagen de publicación">
+                                            style="max-width:100%; border-radius:10px;" alt="Imagen de publicación">
                                     </div>
                                     <p class="mt-2"><?php echo htmlspecialchars($fila['descripcion']); ?></p>
                                 <?php endif; ?>
@@ -277,61 +301,40 @@ $resultado = $conn->query($sql);
 
                     <?php } ?>
 
-
-
-
-
-
-                    <!-- 📢 PUBLICACIÓN -->
-                    <div class="post-card p-4 mb-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="mini-avatar"></div>
-                            <div class="ms-3">
-                                <strong>Ana López</strong>
-                                <p class="small text-muted m-0">Desarrolladora Frontend</p>
-                            </div>
-                        </div>
-                        <p>Busco diseñador UX/UI para colaborar en una app educativa 🚀</p>
-                        <button class="btn btn-sm btn-outline-dark">Ver proyecto</button>
-                    </div>
-
-                    <div class="post-card p-4 mb-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="mini-avatar"></div>
-                            <div class="ms-3">
-                                <strong>Carlos Ruiz</strong>
-                                <p class="small text-muted m-0">Editor de video</p>
-                            </div>
-                        </div>
-                        <p>Ofrezco edición profesional para proyectos tecnológicos.</p>
-                        <button class="btn btn-sm btn-outline-dark">Contactar</button>
-                    </div>
-
                 </section>
-
 
                 <!-- 🔹 COLUMNA DERECHA -->
                 <aside class="col-lg-3 d-none d-lg-block">
 
-                    <!-- Tarjeta usuarios destacados / consejos -->
                     <div class="side-card p-3 mb-4">
                         <h5>Usuarios destacados</h5>
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="mini-avatar"></div>
-                            <span class="ms-2">Laura Dev</span>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <div class="mini-avatar"></div>
-                            <span class="ms-2">Mario UX</span>
-                        </div>
+
+                        <?php while ($user = $resultTopUsuarios->fetch_assoc()):
+
+                            $fotoDestacado = !empty($user['foto_perfil'])
+                                ? 'uploads/' . $user['foto_perfil']
+                                : 'assets/img/default-avatar.png';
+                            ?>
+
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="<?php echo $fotoDestacado; ?>" class="rounded-circle" width="40" height="40"
+                                    style="object-fit: cover;">
+
+                                <div class="ms-2">
+                                    <strong><?php echo $user['nombre']; ?></strong><br>
+                                    <small class="text-muted">
+                                        <?php echo $user['total_seguidores']; ?> seguidores
+                                    </small>
+                                </div>
+                            </div>
+
+                        <?php endwhile; ?>
                     </div>
 
                     <div class="side-card p-3 mb-4">
                         <h5>Consejo del día</h5>
                         <p>Completa tu perfil al 100% para tener más visibilidad.</p>
                     </div>
-
-
 
                 </aside>
 
