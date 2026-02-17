@@ -9,12 +9,15 @@
 
 body{
     font-family: 'Rajdhani', sans-serif;
-    background-color: rgb(228, 227, 228)
+    flex-direction: column;
+    background-color: rgb(228, 227, 228);
+     
 }
 
 h1, h2, h3, h4{
     font-family: 'Orbitron', sans-serif;
 }
+
 /* NAVBAR GENERAL */
 .navbar-custom {
     width: 100%;
@@ -91,6 +94,7 @@ h1, h2, h3, h4{
 /* ============================= */
 main{
     margin-top: 7rem;
+    height: 100dvh;
 }
 
 .perfil-container{
@@ -209,6 +213,9 @@ main{
     right: 15px;
     font-size: 1.5rem;
     cursor: pointer;
+}
+footer.footer {
+    margin-top: auto; /* Esto empuja el footer al final */
 }
 .footer {
     background: #0f172a;

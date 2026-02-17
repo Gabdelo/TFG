@@ -275,30 +275,7 @@ $totalSeguidos = $resSeguidos->fetch_assoc()['total'];
                         </div>
 
                     <?php } ?>
-                    <!-- 📢 PUBLICACIÓN -->
-                    <div class="post-card p-4 mb-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="mini-avatar"></div>
-                            <div class="ms-3">
-                                <strong>Ana López</strong>
-                                <p class="small text-muted m-0">Desarrolladora Frontend</p>
-                            </div>
-                        </div>
-                        <p>Busco diseñador UX/UI para colaborar en una app educativa 🚀</p>
-                        <button class="btn btn-sm btn-outline-dark">Ver proyecto</button>
-                    </div>
-
-                    <div class="post-card p-4 mb-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="mini-avatar"></div>
-                            <div class="ms-3">
-                                <strong>Carlos Ruiz</strong>
-                                <p class="small text-muted m-0">Editor de video</p>
-                            </div>
-                        </div>
-                        <p>Ofrezco edición profesional para proyectos tecnológicos.</p>
-                        <button class="btn btn-sm btn-outline-dark">Contactar</button>
-                    </div>
+                  
 
                 </section>
 

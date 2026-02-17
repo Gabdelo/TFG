@@ -79,7 +79,7 @@ $resultTopUsuarios = $conn->query($sqlTopUsuarios);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"><!--bootstrap 5 icons-->
     <link type="text/css" rel="stylesheet" href="assets/css/menu.css">
     <link type="text/css" rel="stylesheet" href="assets/css/global.css">
-    <title>Document</title>
+    <title>NEXUM</title>
 </head>
 
 <body>
