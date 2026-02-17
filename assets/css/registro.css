@@ -18,6 +18,9 @@ body {
     display: flex;
     justify-content: center; /* centrado horizontal */
     align-items: center;     /* centrado vertical */
+    background-image: url(../img/fondo33.jpg);
+    background-position: center;
+    background-size: cover;
 }
 
 /* ===== CARD ===== */

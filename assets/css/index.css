@@ -79,9 +79,17 @@ a {
 /* ================= HERO ================= */
 
 .hero-section {
-    padding: 100px 0 80px;
+    
+   
+   
+    padding: 200px 0 80px;
     background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
-    color: white;
+    color: rgb(0, 0, 0);
+    background-image: url(../img/fondo22.jpg);
+    background-position: center;
+    background-size: cover;
+    height: 100dvh;
+   
 }
 
 .hero-text h1 {
@@ -124,11 +132,11 @@ a {
 }
 
 .btn-secondary-nexum {
-    border: 2px solid white;
+    border: 2px solid rgb(0, 0, 0);
     padding: 14px 32px;
     border-radius: 50px;
     margin-left: 15px;
-    color: white;
+    color: rgb(0, 0, 0);
     font-weight: 500;
     transition: 0.3s ease;
 }
@@ -163,6 +171,10 @@ a {
 .ecosystem-section {
     padding: 120px 0;
     background: linear-gradient(180deg, #ffffff, #f9f9f9);
+    background-image: url(../img/fondo11.jpg);
+    background-position: center;
+    background-size: cover;
+
 }
 
 .ecosystem-grid {

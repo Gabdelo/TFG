@@ -22,7 +22,7 @@ if (empty($email) || empty($password)) {
    3. BUSCAR USUARIO
 ========================= */
 $stmt = $conn->prepare(
-    "SELECT id_usuario, nombre, email, password, tipo_usuario, foto_perfil, ciudad, disponibilidad, tipo_intercambio
+    "SELECT id_usuario, nombre, email, password, tipo_usuario, foto_perfil, ciudad, disponibilidad, tipo_intercambio, sobre_mi
      FROM usuarios
      WHERE email = ?"
 );

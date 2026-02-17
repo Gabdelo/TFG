@@ -15,6 +15,7 @@ function loginUser($user) {
     $_SESSION['ciudad'] = $user['ciudad'];
     $_SESSION['disponibilidad'] = $user['disponibilidad'];
     $_SESSION['tipo_intercambio'] = $user['tipo_intercambio'];
+    $_SESSION['sobre_mi'] = $user['sobre_mi'];
 }
 
 function isLoggedIn() {
