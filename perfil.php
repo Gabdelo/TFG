@@ -10,9 +10,15 @@ if (isset($_SESSION['id_usuario'])) { // el nombre correcto según login
     $foto = !empty($_SESSION['foto_perfil'])
         ? 'uploads/' . $_SESSION['foto_perfil']
         : 'assets/img/default-avatar.png';
+        $ubicacion = $_SESSION['ciudad'];
+    $tipo = $_SESSION['tipo_usuario'];
+    $disponibilidad = $_SESSION['disponibilidad'];
+    $tipo_intercambio = $_SESSION['tipo_intercambio'];
 } else {
     // Usuario no logueado
     $nombre = "Invitado";
+    header("Location: index.html");
+    exit;
     // opcional: redirigir al login
     // header("Location: login.php"); exit;
 }
@@ -71,7 +77,7 @@ $totalSeguidos = $resSeguidos->fetch_assoc()['total'];
         <div class="nav-container">
 
             <!-- LOGO -->
-            <a href="index.html" class="nav-logo">
+            <a href="menu.php" class="nav-logo">
                 <img src="./assets/img/nexusIcon.png" alt="Logo">
             </a>
 
@@ -86,15 +92,15 @@ $totalSeguidos = $resSeguidos->fetch_assoc()['total'];
                 </li>
 
                 <li>
-                    <a href="empleos.php">
+                    <a href="VerOfertas.php">
                         <i class="bi bi-briefcase-fill"></i>
                         <span>Empleos</span>
                     </a>
                 </li>
                 <li>
-                    <a href="personas.php">
-                        <i class="bi bi-person-fill"></i>
-                        <span>Personas</span>
+                    <a href="nexum.php">
+                        <i class="bi bi-diagram-3-fill"></i>
+                        <span>NEXUM</span>
                     </a>
                 </li>
 
@@ -113,9 +119,7 @@ $totalSeguidos = $resSeguidos->fetch_assoc()['total'];
                         <span>Perfil</span>
                     </a>
                 </li>
-
             </ul>
-
         </div>
     </nav>
     <main class="">
@@ -142,30 +146,23 @@ $totalSeguidos = $resSeguidos->fetch_assoc()['total'];
 
                             <div class="col-md-9">
                                 <div class="d-flex justify-content-end gap-2 mb-2">
-                                    <a href="editarPerfil.php"><button class="btn btn-outline-primary btn-sm">
-                                            <i class="bi bi-pencil-square"></i> Editar perfil
-                                        </button></a>
+    <!-- Botón Editar perfil -->
+    <a href="editarPerfil.php">
+        <button class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-pencil-square"></i> Editar perfil
+        </button>
+    </a>
 
-                                    <button class="btn btn-primary btn-sm" id="btnSubirPublicacion">
-                                        <i class="bi bi-plus-circle"></i> Subir proyecto
-                                    </button>
-                                    <!-- NUEVO BOTÓN -->
-                                    <button class="btn btn-success btn-sm" id="btnAbrirPublicacion">
-                                        <i class="bi bi-upload"></i> Subir publicación
-                                    </button>
-                                    <?php if (isset($_SESSION['tipo_usuario']) &&($_SESSION['tipo_usuario'] === 'ofrecer' ||
-$_SESSION['tipo_usuario'] === 'ambos')
-                                    ): ?>
-
-                                        <button class="btn btn-warning btn-sm" id="btnPublicarOferta">
-                                            <i class="bi bi-briefcase-fill"></i> Publicar oferta
-                                        </button>
-
-                                    <?php endif; ?>
-                                </div>
+    <!-- Botón Cerrar sesión -->
+    <form method="POST" action="php/logout.php" style="display:inline;">
+        <button type="submit" class="btn btn-outline-danger btn-sm">
+            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+        </button>
+    </form>
+</div>
                                 <h1 class="perfil-nombre"><?php echo "" . $nombre . "" ?></h1>
                                 <p class="perfil-ubicacion">
-                                    <i class="bi bi-geo-alt"></i> Madrid · Online
+                                    <i class="bi bi-geo-alt"></i> <?php echo "" . $ubicacion . "" ?> · Online
                                 </p>
                                 <p class="mt-2 mb-1">
                                     <strong><?php echo $totalSeguidores; ?></strong> seguidores ·
@@ -173,33 +170,78 @@ $_SESSION['tipo_usuario'] === 'ambos')
                                 </p>
 
                                 <span class="badge bg-warning text-dark">
-                                    Ofrece y busca habilidades
+                                    <?php echo "" . $tipo . "" ?>
                                 </span>
                             </div>
 
                         </div>
 
                     </div>
+<!-- HABILIDADES DINÁMICAS -->
+<div class="perfil-card p-4 mt-4">
+    <h4><i class="bi bi-lightning-charge"></i> Habilidades que ofrece</h4>
 
-                    <!-- HABILIDADES -->
-                    <div class="perfil-card p-4 mt-4">
-                        <h4><i class="bi bi-lightning-charge"></i> Habilidades que ofrece</h4>
+    <?php
+    // Preparar la consulta para obtener las habilidades del usuario
+    $sqlHabilidades = "
+        SELECT h.nombre AS habilidad, n.nombre AS nivel
+        FROM usuario_ofrece uo
+        JOIN habilidades h ON uo.id_habilidad = h.id_habilidad
+        JOIN niveles n ON uo.id_nivel = n.id_nivel
+        WHERE uo.id_usuario = ?
+        ORDER BY n.id_nivel DESC
+    ";
 
-                        <div class="habilidad-item mt-3">
-                            <div class="d-flex justify-content-between">
-                                <span>Programación</span>
-                                <span class="nivel">Avanzado</span>
-                            </div>
-                            <div class="barra-nivel avanzado"></div>
-                        </div>
+    $stmt = $conn->prepare($sqlHabilidades);
+    $stmt->bind_param("i", $id_usuario);
+    $stmt->execute();
+    $stmt->bind_result($habilidad, $nivel);
 
-                    </div>
+    $tieneHabilidades = false;
+
+    while ($stmt->fetch()) {
+        $tieneHabilidades = true;
+
+        // Determinar clase CSS según el nivel
+        $nivelClase = 'basico';
+        if (!empty($nivel)) {
+            $nivelTexto = strtolower($nivel);
+            $nivelTexto = str_replace('á','a',$nivelTexto); // básico -> basico
+            switch ($nivelTexto) {
+                case 'avanzado':
+                    $nivelClase = 'avanzado';
+                    break;
+                case 'intermedio':
+                    $nivelClase = 'intermedio';
+                    break;
+                default:
+                    $nivelClase = 'basico';
+            }
+        }
+    ?>
+        <div class="habilidad-item mt-3">
+            <div class="d-flex justify-content-between">
+                <span><?php echo htmlspecialchars($habilidad); ?></span>
+                <span class="nivel"><?php echo htmlspecialchars($nivel); ?></span>
+            </div>
+            <div class="barra-nivel <?php echo $nivelClase; ?>"></div>
+        </div>
+    <?php
+    }
+
+    if (!$tieneHabilidades) {
+        echo "<p>¡Aún no has registrado habilidades!</p>";
+    }
+
+    $stmt->close();
+    ?>
+</div>
 
                     <!-- PREFERENCIAS -->
                     <div class="perfil-card p-4 mt-4">
                         <h4><i class="bi bi-clock"></i> Preferencias</h4>
-                        <p><strong>Tipo de intercambio:</strong> Proyecto</p>
-                        <p><strong>Disponibilidad:</strong> Tardes entre semana</p>
+                        <p><strong>Tipo de intercambio:</strong> <?php echo "" . $tipo_intercambio . "" ?></p>
+                        <p><strong>Disponibilidad:</strong> <?php echo "" . $disponibilidad . "" ?></p>
                     </div>
 
                     <div class="perfil-card p-4 mt-4">
@@ -246,20 +288,52 @@ $_SESSION['tipo_usuario'] === 'ambos')
                 </div>
 
                 <!-- COLUMNA LATERAL -->
-                <div class="col-lg-4">
-                    <div class="perfil-card p-4">
-                        <h4>Sobre mí</h4>
-                        <p>
-                            Usuario interesado en colaborar en proyectos tecnológicos
-                            y creativos. Busco aprender mientras comparto conocimientos.
-                        </p>
-                    </div>
+<div class="col-lg-4">
+    
+    <!-- SOBRE MÍ -->
+    <div class="perfil-card p-4">
+        <h4>Sobre mí</h4>
+        <p>
+            Usuario interesado en colaborar en proyectos tecnológicos
+            y creativos. Busco aprender mientras comparto conocimientos.
+        </p>
+    </div>
 
-                    <div class="perfil-card p-4 mt-4">
-                        <h5>Estado</h5>
-                        <p><span class="estado-activo"></span> Disponible para intercambios</p>
-                    </div>
-                </div>
+    <!-- ACCIONES -->
+    <div class="perfil-card p-4 mt-4">
+        <h5 class="mb-3 text-center">Acciones</h5>
+
+        <div class="d-grid gap-2">
+            
+
+            <button class="btn btn-primary btn-sm" id="btnSubirPublicacion">
+                <i class="bi bi-plus-circle"></i> Subir proyecto
+            </button>
+
+            <button class="btn btn-success btn-sm" id="btnAbrirPublicacion">
+                <i class="bi bi-upload"></i> Subir publicación
+            </button>
+
+            <?php if (
+                isset($_SESSION['tipo_usuario']) && 
+                ($_SESSION['tipo_usuario'] === 'ofrecer' || $_SESSION['tipo_usuario'] === 'ambos')
+            ): ?>
+
+                <button class="btn btn-warning btn-sm" id="btnPublicarOferta">
+                    <i class="bi bi-briefcase-fill"></i> Publicar oferta
+                </button>
+
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- ESTADO -->
+    <div class="perfil-card p-4 mt-4">
+        <h5>Estado</h5>
+        <p><span class="estado-activo"></span> Disponible para intercambios</p>
+    </div>
+
+</div>
 
             </div>
 
@@ -443,13 +517,13 @@ $_SESSION['tipo_usuario'] === 'ambos')
     </div>
 </div>
 
-    <footer class="footer mt-5 pt-5 pb-4">
+    <footer class="footer mt-0 pt-5 pb-4">
         <div class="container">
             <div class="row gy-4">
 
                 <!-- LOGO Y DESCRIPCIÓN -->
                 <div class="col-lg-4 col-md-6">
-                    <h4 class="footer-logo">SkillSwap</h4>
+                    <h4 class="footer-logo">NEXUM</h4>
                     <p class="footer-text">
                         Plataforma para intercambiar habilidades y colaborar en
                         proyectos tecnológicos y creativos.
@@ -487,9 +561,7 @@ $_SESSION['tipo_usuario'] === 'ambos')
                 <!-- CONTACTO -->
                 <div class="col-lg-3 col-md-6">
                     <h6 class="footer-title">Contacto</h6>
-                    <p class="footer-text mb-1">
-                        <i class="bi bi-envelope"></i> soporte@skillswap.com
-                    </p>
+                    
                     <p class="footer-text mb-1">
                         <i class="bi bi-geo-alt"></i> Madrid, España
                     </p>
@@ -503,7 +575,7 @@ $_SESSION['tipo_usuario'] === 'ambos')
             <hr class="footer-divider">
 
             <div class="text-center small">
-                © 2026 SkillSwap. Todos los derechos reservados.
+                © 2026 NEXUM. Todos los derechos reservados.
             </div>
         </div>
     </footer>

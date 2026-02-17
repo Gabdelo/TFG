@@ -49,56 +49,56 @@ if ($id_chat) {
 
 <body>
     <nav class="navbar-custom">
-    <div class="nav-container">
+        <div class="nav-container">
 
-        <!-- LOGO -->
-        <a href="index.html" class="nav-logo">
-            <img src="./assets/img/nexusIcon.png" alt="Logo">
-        </a>
+            <!-- LOGO -->
+            <a href="menu.php" class="nav-logo">
+                <img src="./assets/img/nexusIcon.png" alt="Logo">
+            </a>
 
-        <!-- MENÚ CENTRADO -->
-        <ul class="nav-menu">
+            <!-- MENÚ CENTRADO -->
+            <ul class="nav-menu">
 
-            <li>
-                <a href="menu.php">
-                    <i class="bi bi-house-fill"></i>
-                    <span>Inicio</span>
-                </a>
-            </li>
+                <li>
+                    <a href="menu.php">
+                        <i class="bi bi-house-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
 
-            <li>
-                <a href="empleos.php">
-                    <i class="bi bi-briefcase-fill"></i>
-                    <span>Empleos</span>
-                </a>
-            </li>
-            <li>
-                <a href="personas.php">
-                    <i class="bi bi-person-fill"></i>
-                    <span>Personas</span>
-                </a>
-            </li>
+                <li>
+                    <a href="VerOfertas.php">
+                        <i class="bi bi-briefcase-fill"></i>
+                        <span>Empleos</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="nexum.php">
+                        <i class="bi bi-diagram-3-fill"></i>
+                        <span>NEXUM</span>
+                    </a>
+                </li>
 
-            <li>
-                <a href="mensajes.php">
-                    <i class="bi bi-chat-dots-fill"></i>
-                    <span>Chats</span>
-                </a>
-            </li>
+                <li>
+                    <a href="mensajes.php">
+                        <i class="bi bi-chat-dots-fill"></i>
+                        <span>Chats</span>
+                    </a>
+                </li>
 
-            <li>
-                <a href="perfil.php" class="nav-profile">
-                    <div class="profile-pic">
-                        <img src="<?php echo $foto; ?>" alt="">
-                    </div>
-                    <span>Perfil</span>
-                </a>
-            </li>
+                <li>
+                    <a href="perfil.php" class="nav-profile">
+                        <div class="profile-pic">
+                            <img src="<?php echo $foto; ?>" alt="">
+                        </div>
+                        <span>Perfil</span>
+                    </a>
+                </li>
 
-        </ul>
+            </ul>
 
-    </div>
-</nav>
+        </div>
+    </nav>
     <div class="container mt-5">
         <h2 class="mb-3">-</h2>
         <div class="chat-container">

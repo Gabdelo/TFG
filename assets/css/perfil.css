@@ -143,31 +143,17 @@ main{
 /* HABILIDADES */
 /* ============================= */
 
-.barra-nivel{
+.barra-nivel {
     height: 8px;
     border-radius: 20px;
     margin-top: 5px;
     background-color: #ddd;
+    transition: width 0.5s ease;
 }
-
-.barra-nivel.avanzado{
-    width: 100%;
-    background-color: orange;
-}
-
-.barra-nivel.intermedio{
-    width: 70%;
-    background-color: orange;
-}
-
-.barra-nivel.basico{
-    width: 40%;
-    background-color: orange;
-}
-
-.nivel{
-    font-weight: 600;
-}
+.barra-nivel.avanzado { width: 100%; background-color: #198754; }
+.barra-nivel.intermedio { width: 70%; background-color: #0d6efd; }
+.barra-nivel.basico { width: 40%; background-color: #ffc107; }
+.nivel { font-weight: 600; font-size: 0.9rem; color: #333; }
 
 /* ============================= */
 /* ESTADO */

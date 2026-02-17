@@ -11,6 +11,7 @@ if (isset($_SESSION['id_usuario'])) { // el nombre correcto según login
     $foto = !empty($_SESSION['foto_perfil'])
         ? 'uploads/' . $_SESSION['foto_perfil']
         : 'assets/img/default-avatar.png';
+        $ubicacion = $_SESSION['ciudad'];
 } else {
     // Usuario no logueado
     $nombre = "Invitado";
@@ -65,6 +66,54 @@ while($fila = $resInscritos->fetch_assoc()) {
     $inscritos[] = $fila;
 }
 $stmt2->close();
+$sqlTopUsuarios = "
+    SELECT u.id_usuario,
+           u.nombre,
+           u.foto_perfil,
+           COUNT(us.id_seguidor) AS total_seguidores
+    FROM usuarios u
+    LEFT JOIN usuario_seguidores us 
+        ON u.id_usuario = us.id_usuario
+    GROUP BY u.id_usuario
+    ORDER BY total_seguidores DESC
+    LIMIT 4
+";
+
+$resultTopUsuarios = $conn->query($sqlTopUsuarios);
+$sqlSeguidores = "SELECT COUNT(*) AS total 
+                  FROM usuario_seguidores 
+                  WHERE id_usuario = ?";
+
+$stmtSeguidores = $conn->prepare($sqlSeguidores);
+$stmtSeguidores->bind_param("i", $idUsuario);
+$stmtSeguidores->execute();
+$resSeguidores = $stmtSeguidores->get_result();
+$totalSeguidores = $resSeguidores->fetch_assoc()['total'];
+
+
+$sqlSeguidos = "SELECT COUNT(*) AS total 
+                FROM usuario_seguidores 
+                WHERE id_seguidor = ?";
+
+$stmtSeguidos = $conn->prepare($sqlSeguidos);
+$stmtSeguidos->bind_param("i", $idUsuario);
+$stmtSeguidos->execute();
+$resSeguidos = $stmtSeguidos->get_result();
+$totalSeguidos = $resSeguidos->fetch_assoc()['total'];
+$sqlTopUsuarios = "
+    SELECT u.id_usuario,
+           u.nombre,
+           u.foto_perfil,
+           COUNT(us.id_seguidor) AS total_seguidores
+    FROM usuarios u
+    LEFT JOIN usuario_seguidores us 
+        ON u.id_usuario = us.id_usuario
+    GROUP BY u.id_usuario
+    ORDER BY total_seguidores DESC
+    LIMIT 4
+";
+
+$resultTopUsuarios = $conn->query($sqlTopUsuarios);
 
 ?>
 <!DOCTYPE html>
@@ -78,7 +127,7 @@ $stmt2->close();
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"><!--bootstrap 5 icons-->
     <link type="text/css" rel="stylesheet" href="assets/css/menu.css">
     <link type="text/css" rel="stylesheet" href="assets/css/global.css">
-    <title>Document</title>
+    <title>Inscripciones</title>
 </head>
 
 <body>
@@ -86,7 +135,7 @@ $stmt2->close();
         <div class="nav-container">
 
             <!-- LOGO -->
-            <a href="index.html" class="nav-logo">
+            <a href="menu.php" class="nav-logo">
                 <img src="./assets/img/nexusIcon.png" alt="Logo">
             </a>
 
@@ -149,16 +198,16 @@ $stmt2->close();
                         </div>
 
                         <h5 class="mt-3 mb-1"><?php echo "" . $nombre . "" ?></h5>
-                        <p class="profile-role">Desarrollador Full Stack</p>
+                        <p class="profile-role"><?php echo "" . $ubicacion . "" ?></p>
 
                         <div class="profile-stats mt-3">
                             <div>
-                                <strong>12</strong>
-                                <span>Proyectos</span>
+                                <strong><?php echo $totalSeguidores; ?></strong></strong>
+                                <span>Seguidores</span>
                             </div>
                             <div>
-                                <strong>34</strong>
-                                <span>Conexiones</span>
+                                <strong><?php echo $totalSeguidos; ?></strong></strong>
+                                <span>Seguidos</span>
                             </div>
                         </div>
 
@@ -167,15 +216,7 @@ $stmt2->close();
                         </a>
 
                     </div>
-                    <div class="side-card p-3 mb-4">
-                        <h5>Filtrar por</h5>
-                        <ul class="list-unstyled mt-3">
-                            <li><a href="#">Programación</a></li>
-                            <li><a href="#">Diseño</a></li>
-                            <li><a href="#">Marketing</a></li>
-                            <li><a href="#">Edición de video</a></li>
-                        </ul>
-                    </div>
+                    
 
                     <div class="side-card p-3">
                         <h5>Tendencias</h5>
@@ -205,7 +246,7 @@ $stmt2->close();
             </p>
         </div>
 
-        <hr>
+        
 
         <!-- Lista de usuarios inscritos -->
         <div>
@@ -213,13 +254,13 @@ $stmt2->close();
 
             <?php if(!empty($inscritos)): ?>
                 <?php foreach($inscritos as $user): ?>
-                    <div class="d-flex align-items-center mb-3 p-2 border rounded bg-light">
+                    <div class="d-flex align-items-center mb-3 p-2 rounded bg-light">
                         <div style="width:50px; height:50px; border-radius:50%; overflow:hidden;">
                             <img src="<?php echo !empty($user['foto_perfil']) ? 'uploads/'.$user['foto_perfil'] : 'assets/img/default-avatar.png'; ?>" 
                                  alt="Foto" style="width:100%; height:100%; object-fit:cover;">
                         </div>
                         <div class="ms-3 flex-grow-1">
-                            <a href="VerPerfil.php?id=<?php echo $user['id_usuario']; ?>" class="fw-bold text-decoration-none">
+                            <a href="VerPerfil.php?id=<?php echo $user['id_usuario']; ?>" class="fw-bold text-decoration-none" style="color: black;">
                                 <?php echo htmlspecialchars($user['nombre']); ?>
                             </a>
                             <br>
@@ -261,30 +302,42 @@ $stmt2->close();
 </section>
 
                 <!-- 🔹 COLUMNA DERECHA -->
-                <aside class="col-lg-3 d-none d-lg-block">
+               <aside class="col-lg-3 d-none d-lg-block">
 
-                    <!-- Tarjeta usuarios destacados / consejos -->
-                    <div class="side-card p-3 mb-4">
-                        <h5>Usuarios destacados</h5>
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="mini-avatar"></div>
-                            <span class="ms-2">Laura Dev</span>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <div class="mini-avatar"></div>
-                            <span class="ms-2">Mario UX</span>
-                        </div>
-                    </div>
+    <div class="side-card p-3 mb-4">
+        <h5>Usuarios destacados</h5>
 
-                    <div class="side-card p-3 mb-4">
-                        <h5>Consejo del día</h5>
-                        <p>Completa tu perfil al 100% para tener más visibilidad.</p>
-                    </div>
+        <?php while ($user = $resultTopUsuarios->fetch_assoc()): 
+            
+            $fotoDestacado = !empty($user['foto_perfil'])
+                ? 'uploads/' . $user['foto_perfil']
+                : 'assets/img/default-avatar.png';
+        ?>
 
-                    <!-- 🔹 OFERTAS DE EMPLEO / INSCRIPCIONES -->
+            <div class="d-flex align-items-center mb-3">
+                <img src="<?php echo $fotoDestacado; ?>" 
+                     class="rounded-circle" 
+                     width="40" height="40" 
+                     style="object-fit: cover;">
+                
+                <div class="ms-2">
+                    <strong><?php echo $user['nombre']; ?></strong><br>
+                    <small class="text-muted">
+                        <?php echo $user['total_seguidores']; ?> seguidores
+                    </small>
+                </div>
+            </div>
 
+        <?php endwhile; ?>
+    </div>
 
-                </aside>
+    <div class="side-card p-3 mb-4">
+        <h5>Consejo del día</h5>
+        <p>Completa tu perfil al 100% para tener más visibilidad.</p>
+    </div>
+
+</aside>
+
 
             </div>
         </div>
@@ -295,7 +348,7 @@ $stmt2->close();
 
                 <!-- LOGO Y DESCRIPCIÓN -->
                 <div class="col-lg-4 col-md-6">
-                    <h4 class="footer-logo">SkillSwap</h4>
+                    <h4 class="footer-logo">NEXUM</h4>
                     <p class="footer-text">
                         Plataforma para intercambiar habilidades y colaborar en
                         proyectos tecnológicos y creativos.
@@ -349,7 +402,7 @@ $stmt2->close();
             <hr class="footer-divider">
 
             <div class="text-center small">
-                © 2026 SkillSwap. Todos los derechos reservados.
+                © 2026 NEXUM. Todos los derechos reservados.
             </div>
         </div>
     </footer>

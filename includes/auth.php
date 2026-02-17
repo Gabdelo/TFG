@@ -12,6 +12,9 @@ function loginUser($user) {
     $_SESSION['email']        = $user['email'];
     $_SESSION['tipo_usuario'] = $user['tipo_usuario'];
     $_SESSION['foto_perfil'] = $user['foto_perfil'];
+    $_SESSION['ciudad'] = $user['ciudad'];
+    $_SESSION['disponibilidad'] = $user['disponibilidad'];
+    $_SESSION['tipo_intercambio'] = $user['tipo_intercambio'];
 }
 
 function isLoggedIn() {
@@ -28,6 +31,6 @@ function requireLogin() {
 function logoutUser() {
     session_unset();
     session_destroy();
-    header("Location: login.php");
+    header("Location: ../index.html");
     exit;
 }
