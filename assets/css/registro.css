@@ -1,18 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&display=swap');
 
-*{
-    padding: 0;
+/* ===== RESET ===== */
+* {
     margin: 0;
+    padding: 0;
     box-sizing: border-box;
     font-family: 'Orbitron', sans-serif;
-}/* ======== RESET Y TIPOGRAFÍA ======== */
-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #f5f6fa;
-    color: #333;
 }
 
-/* ======== CARD DEL FORMULARIO ======== */
+body, html {
+    height: 100%;
+    background-color: #f5f6fa;
+}
+
+/* ===== CONTENEDOR PRINCIPAL ===== */
+body {
+    display: flex;
+    justify-content: center; /* centrado horizontal */
+    align-items: center;     /* centrado vertical */
+}
+
+/* ===== CARD ===== */
 .card {
     border-radius: 0.75rem;
     border: none;
@@ -20,10 +28,11 @@ body {
     background: #fff;
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
     max-width: 600px;
-    margin: 0 auto;
+    width: 100%;
+    padding: 1rem;
 }
 
-/* ======== TITULOS ======== */
+/* ===== TITULOS ===== */
 h2, h5 {
     font-weight: 600;
     color: #222;
@@ -40,7 +49,7 @@ h5 {
     color: #555;
 }
 
-/* ======== INPUTS Y SELECT ======== */
+/* ===== INPUTS / SELECT / TEXTAREA ===== */
 .form-control, .form-select, textarea {
     border-radius: 0.5rem;
     height: 38px;
@@ -61,13 +70,13 @@ textarea.form-control {
     outline: none;
 }
 
-/* ======== LABELS ======== */
+/* ===== LABELS ===== */
 label {
     font-weight: 500;
     font-size: 0.875rem;
 }
 
-/* ======== BOTONES ======== */
+/* ===== BOTONES ===== */
 .btn {
     border-radius: 0.5rem;
     font-size: 0.95rem;
@@ -79,43 +88,28 @@ label {
     transform: translateY(-2px);
 }
 
-/* ======== CHECKBOX ======== */
+/* ===== CHECKBOX ===== */
 .form-check-label {
     font-size: 0.875rem;
 }
 
-/* ======== SEPARACIÓN ENTRE ELEMENTOS ======== */
-.row > [class*="col-"] {
-    margin-bottom: 0.5rem;
-}
-
-/* ======== HABILIDADES / TEXTAREA ======== */
+/* ===== HABILIDADES / TEXTAREA ===== */
 textarea.form-control {
     resize: none;
 }
 
-/* ======== ESPACIOS GENERALES ======== */
+/* ===== CARD BODY ===== */
 .card-body {
-    padding: 1.25rem 1rem;
+    padding: 1.5rem 1rem;
 }
 
-.mb-3 {
-    margin-bottom: 0.65rem !important;
-}
+/* ===== MARGENES ===== */
+.mb-3 { margin-bottom: 0.65rem !important; }
+.mb-4 { margin-bottom: 0.85rem !important; }
+.mt-3 { margin-top: 0.65rem !important; }
+.mt-4 { margin-top: 0.85rem !important; }
 
-.mb-4 {
-    margin-bottom: 0.85rem !important;
-}
-
-.mt-3 {
-    margin-top: 0.65rem !important;
-}
-
-.mt-4 {
-    margin-top: 0.85rem !important;
-}
-
-/* ======== RESPONSIVO ======== */
+/* ===== RESPONSIVO ===== */
 @media (max-width: 576px) {
     .card {
         margin: 0 0.75rem;

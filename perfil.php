@@ -14,6 +14,7 @@ if (isset($_SESSION['id_usuario'])) { // el nombre correcto según login
     $tipo = $_SESSION['tipo_usuario'];
     $disponibilidad = $_SESSION['disponibilidad'];
     $tipo_intercambio = $_SESSION['tipo_intercambio'];
+    $sobre = $_SESSION['sobre_mi'];
 } else {
     // Usuario no logueado
     $nombre = "Invitado";
@@ -222,7 +223,7 @@ $totalSeguidos = $resSeguidos->fetch_assoc()['total'];
         <div class="habilidad-item mt-3">
             <div class="d-flex justify-content-between">
                 <span><?php echo htmlspecialchars($habilidad); ?></span>
-                <span class="nivel"><?php echo htmlspecialchars($nivel); ?></span>
+                <span class="nivel"><?php echo htmlspecialchars((string)$nivel); ?></span>
             </div>
             <div class="barra-nivel <?php echo $nivelClase; ?>"></div>
         </div>
@@ -294,8 +295,7 @@ $totalSeguidos = $resSeguidos->fetch_assoc()['total'];
     <div class="perfil-card p-4">
         <h4>Sobre mí</h4>
         <p>
-            Usuario interesado en colaborar en proyectos tecnológicos
-            y creativos. Busco aprender mientras comparto conocimientos.
+            <?php echo $sobre; ?>
         </p>
     </div>
 
@@ -517,7 +517,7 @@ $totalSeguidos = $resSeguidos->fetch_assoc()['total'];
     </div>
 </div>
 
-    <footer class="footer mt-0 pt-5 pb-4">
+    <footer class="footer mt-0 pt-5 pb-4 footer">
         <div class="container">
             <div class="row gy-4">
 

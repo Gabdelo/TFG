@@ -21,6 +21,10 @@ CREATE TABLE usuarios (
     disponibilidad VARCHAR(100),
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+ALTER TABLE usuarios
+ADD tipo_intercambio ENUM('Puntual','Proyecto','Clases / mentoría');
+ALTER TABLE usuarios
+ADD COLUMN foto_perfil VARCHAR(255) DEFAULT NULL;
 
 -- =========================
 -- TABLA HABILIDADES
@@ -85,8 +89,6 @@ INSERT INTO niveles (nombre) VALUES
 ('Intermedio'),
 ('Avanzado');
 
-ALTER TABLE usuarios
-ADD tipo_intercambio ENUM('Puntual','Proyecto','Clases / mentoría');
 
 CREATE TABLE proyectos (
     id_proyecto INT AUTO_INCREMENT PRIMARY KEY,
@@ -109,8 +111,7 @@ CREATE TABLE proyecto_habilidad (
     FOREIGN KEY (id_proyecto) REFERENCES proyectos(id_proyecto) ON DELETE CASCADE,
     FOREIGN KEY (id_habilidad) REFERENCES habilidades(id_habilidad)
 );
-ALTER TABLE usuarios
-ADD COLUMN foto_perfil VARCHAR(255) DEFAULT NULL;
+
 CREATE TABLE usuario_seguidores (
     id_usuario INT NOT NULL,         -- El usuario que está siendo seguido
     id_seguidor INT NOT NULL,        -- El usuario que sigue
@@ -204,9 +205,9 @@ ALTER TABLE inscripciones_oferta
 ADD COLUMN estado ENUM('Inscrito','Seleccionado','Rechazado') DEFAULT 'Inscrito';
 
 
----------------------------------------------------------
--- INSERTS ----------------------------------------------------------------------------------------
----------------------------------------------------------
+
+-- INSERTS --------
+
 INSERT INTO usuarios (nombre, email, password, ciudad, modalidad, tipo_usuario, disponibilidad, tipo_intercambio) VALUES
 ('Ana López', 'ana.lopez@email.com', 'pass123', 'Madrid', 'Online', 'buscar', 'Lunes a Viernes 9-17', 'Clases / mentoría'),
 ('Carlos Pérez', 'carlos.perez@email.com', 'pass123', 'Barcelona', 'Presencial', 'ofrecer', 'Fines de semana', 'Proyecto'),
@@ -308,13 +309,13 @@ INSERT INTO usuario_seguidores (id_usuario, id_seguidor) VALUES
 
 -- Mensajes enviados por el usuario 1 al 21
 INSERT INTO mensajes (id_emisor, id_receptor, mensaje) VALUES
-(1, 21, 'Hola, ¿cómo estás?'),
-(1, 21, '¿Has visto el proyecto que subí?');
+(1, 20, 'Hola, ¿cómo estás?'),
+(1, 20, '¿Has visto el proyecto que subí?');
 
 -- Mensajes enviados por el usuario 21 al 1
 INSERT INTO mensajes (id_emisor, id_receptor, mensaje) VALUES
-(21, 1, '¡Hola! Sí, lo vi y está genial 😃'),
-(21, 1, 'Hablemos más tarde para coordinar.');
+(20, 1, '¡Hola! Sí, lo vi y está genial 😃'),
+(20, 1, 'Hablemos más tarde para coordinar.');
 
 INSERT INTO ofertas_trabajo 
 (id_usuario, titulo, descripcion, tipo_contrato, modalidad, ubicacion, salario, experiencia)

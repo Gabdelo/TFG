@@ -145,12 +145,12 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* 👈 Esto pega el chat abajo */
+    justify-content: flex-end; 
     gap: 10px;
 }
 
 .mensaje {
-    max-width: 60%; /* 👈 no ocupa todo el ancho */
+    max-width: 60%; 
     padding: 10px 14px;
     border-radius: 15px;
     word-wrap: break-word;

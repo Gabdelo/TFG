@@ -274,7 +274,8 @@ $totalSeguidos = $resSeguidos->fetch_assoc()['total'];
         <div class="habilidad-item mt-3">
             <div class="d-flex justify-content-between">
                 <span><?php echo htmlspecialchars($habilidad); ?></span>
-                <span class="nivel"><?php echo htmlspecialchars($nivel); ?></span>
+                <span class="nivel"><?php echo htmlspecialchars($nivel ?? ''); ?></span>
+
             </div>
             <div class="barra-nivel <?php echo $nivelClase; ?>"></div>
         </div>
@@ -340,8 +341,7 @@ $totalSeguidos = $resSeguidos->fetch_assoc()['total'];
                     <div class="perfil-card p-4">
                         <h4>Sobre mí</h4>
                         <p>
-                            Usuario interesado en colaborar en proyectos tecnológicos
-                            y creativos. Busco aprender mientras comparto conocimientos.
+                            <?php echo htmlspecialchars($usuario['sobre_mi']); ?>
                         </p>
                     </div>
 

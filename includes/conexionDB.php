@@ -1,7 +1,7 @@
 <?php
 $servername = "127.0.0.1";
 $username = "root"; 
-$password = "mysql12345!";
+$password = "";
 $database = "nexum_db"; 
 
 function conectar(){

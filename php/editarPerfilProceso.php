@@ -18,6 +18,8 @@ $modalidad = $_POST['modalidad'];
 $tipo_usuario = $_POST['tipo_usuario'];
 $tipo_intercambio = $_POST['tipo_intercambio'];
 $disponibilidad = $_POST['disponibilidad'];
+$sobre_mi = $_POST['sobre_mi']; // NUEVO CAMPO
+
 // Carpeta donde se guardarán las fotos
 $carpetaSubida = "../uploads/";
 
@@ -45,7 +47,7 @@ if(isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] === UPLOAD_E
 }
 
 /* =========================
-   1️⃣ Ajustar tablas según tipo_usuario
+   Ajustar tablas según tipo_usuario
 ========================= */
 
 // Si cambia a buscar → borrar lo que ofrece
@@ -65,7 +67,7 @@ if ($tipo_usuario == "ofrecer") {
 // Si es "ambos" → no se borra nada
 
 /* =========================
-   2️⃣ Actualizar datos del usuario
+   Actualizar datos del usuario
 ========================= */
 
 $sql = "UPDATE usuarios SET 
@@ -75,12 +77,13 @@ $sql = "UPDATE usuarios SET
         modalidad = ?, 
         tipo_usuario = ?, 
         tipo_intercambio = ?, 
-        disponibilidad = ?
+        disponibilidad = ?, 
+        sobre_mi = ?
         WHERE id_usuario = ?";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param(
-    "sssssssi",
+    "ssssssssi",
     $nombre,
     $email,
     $ciudad,
@@ -88,10 +91,13 @@ $stmt->bind_param(
     $tipo_usuario,
     $tipo_intercambio,
     $disponibilidad,
+    $sobre_mi,  // AÑADIDO
     $id_usuario
 );
 
 $stmt->execute();
+
+// Actualizar sesión
 $_SESSION['nombre'] = $nombre;
 $_SESSION['email']  = $email;
 $_SESSION['ciudad'] = $ciudad;
@@ -99,9 +105,10 @@ $_SESSION['modalidad'] = $modalidad;
 $_SESSION['tipo_usuario'] = $tipo_usuario;
 $_SESSION['tipo_intercambio'] = $tipo_intercambio;
 $_SESSION['disponibilidad'] = $disponibilidad;
+$_SESSION['sobre_mi'] = $sobre_mi; // NUEVO CAMPO
 
 /* =========================
-   3️⃣ Redirigir
+   Redirigir
 ========================= */
 
 header("Location: ../perfil.php?actualizado=1");

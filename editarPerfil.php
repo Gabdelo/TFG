@@ -97,16 +97,24 @@ if (!$usuario) {
         </div>
 
         <div class="mb-3">
-    <label class="form-label">Foto de perfil</label>
-    <input type="file" name="foto_perfil" class="form-control" accept="image/*">
-    <?php if(!empty($usuario['foto_perfil'])): ?>
-        <img src="uploads/<?php echo htmlspecialchars($usuario['foto_perfil']); ?>" alt="Foto de perfil" class="img-thumbnail mt-2" width="100">
-    <?php endif; ?>
-</div>
+            <label class="form-label">Foto de perfil</label>
+            <input type="file" name="foto_perfil" class="form-control" accept="image/*">
+            <?php if(!empty($usuario['foto_perfil'])): ?>
+                <img src="uploads/<?php echo htmlspecialchars($usuario['foto_perfil']); ?>" alt="Foto de perfil" class="img-thumbnail mt-2" width="100">
+            <?php endif; ?>
+        </div>
 
+        <!-- DISPONIBILIDAD -->
         <div class="mb-3">
             <label class="form-label">Disponibilidad</label>
             <textarea name="disponibilidad" class="form-control" rows="2"><?= htmlspecialchars($usuario['disponibilidad']) ?></textarea>
+        </div>
+
+        <!-- SOBRE MÍ -->
+        <div class="mb-3">
+            <label class="form-label">Sobre mí</label>
+            <textarea name="sobre_mi" class="form-control" rows="4"><?= htmlspecialchars($usuario['sobre_mi']) ?></textarea>
+            <small class="text-muted">Cuéntanos un poco sobre ti</small>
         </div>
 
         <div class="d-grid">
